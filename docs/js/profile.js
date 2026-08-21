@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProfile();
     setupAutoSave();
     setupImageUpload();
+
+    document.getElementById("addProfessionBtn")
+        .addEventListener("click", addProfessionToHistory);
 });
 
 function loadProfile() {
@@ -13,6 +16,7 @@ function loadProfile() {
 
     const character = JSON.parse(localStorage.getItem(key)) || {};
 
+    // Load basic fields
     document.getElementById("charName").value = character.name || "";
     document.getElementById("charSpecies").value = character.species || "";
     document.getElementById("charGender").value = character.gender || "";
@@ -26,9 +30,21 @@ function loadProfile() {
     const history = character.professionHistory || [];
     const list = document.getElementById("professionHistory");
     list.innerHTML = "";
-    history.forEach(entry => {
+
+    history.forEach((entry, index) => {
         const li = document.createElement("li");
-        li.textContent = entry;
+
+        li.innerHTML = `
+            ${entry}
+            <button class="deleteProfessionBtn" data-index="${index}">
+                Delete
+            </button>
+        `;
+
+        li.querySelector(".deleteProfessionBtn").addEventListener("click", () => {
+            deleteProfession(index);
+        });
+
         list.appendChild(li);
     });
 
@@ -58,11 +74,6 @@ function setupAutoSave() {
         const input = document.getElementById(id);
         input.addEventListener("input", () => {
             saveField(key, fields[id], input.value);
-
-            // If profession changes, add to history
-            if (id === "charProfession") {
-                updateProfessionHistory(key, input.value);
-            }
         });
     });
 }
@@ -73,20 +84,44 @@ function saveField(key, field, value) {
     localStorage.setItem(key, JSON.stringify(character));
 }
 
-function updateProfessionHistory(key, newProfession) {
+function addProfessionToHistory() {
+    const key = localStorage.getItem("currentCharacter");
     const character = JSON.parse(localStorage.getItem(key)) || {};
+
+    const professionInput = document.getElementById("charProfession");
+    const newProfession = professionInput.value.trim();
+
+    if (newProfession === "") {
+        alert("Enter a profession first");
+        return;
+    }
 
     if (!character.professionHistory) {
         character.professionHistory = [];
     }
 
-    // Only add if different from last entry
-    const history = character.professionHistory;
-    if (history.length === 0 || history[history.length - 1] !== newProfession) {
-        history.push(newProfession);
+    if (character.professionHistory.includes(newProfession)) {
+        alert("Profession already in history");
+        return;
     }
 
+    character.professionHistory.push(newProfession);
+
     localStorage.setItem(key, JSON.stringify(character));
+
+    loadProfile();
+}
+
+function deleteProfession(index) {
+    const key = localStorage.getItem("currentCharacter");
+    const character = JSON.parse(localStorage.getItem(key)) || {};
+
+    if (!character.professionHistory) return;
+
+    character.professionHistory.splice(index, 1);
+
+    localStorage.setItem(key, JSON.stringify(character));
+
     loadProfile();
 }
 
@@ -106,7 +141,7 @@ function setupImageUpload() {
 
             reader.onload = () => {
                 const character = JSON.parse(localStorage.getItem(key)) || {};
-                character.image = reader.result; // Base64 string
+                character.image = reader.result;
                 localStorage.setItem(key, JSON.stringify(character));
 
                 img.src = reader.result;
