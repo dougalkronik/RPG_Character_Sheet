@@ -25,7 +25,7 @@ function loadCharacterList() {
             const key = "character_" + name;
             localStorage.setItem("currentCharacter", key);
 
-            // Redirect to the next page (GitHub Pages supports relative links)
+            // GitHub Pages supports relative navigation
             window.location.href = "personnel.html";
         });
 
@@ -83,4 +83,9 @@ function deleteCharacter(name) {
     localStorage.removeItem(key + "_inventory");
     localStorage.removeItem(key + "_skills");
     localStorage.removeItem(key + "_equipped_righthand");
-    localStorage.removeItem(key + "_equipped_lefth
+    localStorage.removeItem(key + "_equipped_lefthand");
+    localStorage.removeItem(key + "_notes");
+    localStorage.removeItem(key + "_spells");
+
+    loadCharacterList();
+}
