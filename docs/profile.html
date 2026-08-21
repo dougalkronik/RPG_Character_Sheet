@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Character Profile</title>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+
+<body>
+
+<h1>Character Profile</h1>
+
+<label for="charName">Character Name</label>
+<input type="text" id="charName">
+
+<label for="charSpecies">Species / Kin</label>
+<input type="text" id="charSpecies">
+
+<label for="charGender">Gender</label>
+<input type="text" id="charGender">
+
+<label for="charHeight">Height</label>
+<input type="text" id="charHeight">
+
+<label for="charWeight">Weight</label>
+<input type="text" id="charWeight">
+
+<label for="charSkin">Skin Colour</label>
+<input type="text" id="charSkin">
+
+<label for="charHair">Hair Colour</label>
+<input type="text" id="charHair">
+
+<label for="charProfession">Current Profession</label>
+<input type="text" id="charProfession">
+
+<h2>Profession History</h2>
+<ul id="professionHistory"></ul>
+
+<!-- Image upload area -->
+<h2>Character Image</h2>
+<div id="imageContainer">
+    <p>Click to upload an image</p>
+    <img id="charImage" src="assets/Dice_button.png" alt="Character Image" style="display:none;">
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/profile.js"></script>
+
+</body>
+</html>
