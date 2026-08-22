@@ -1,9 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Load the list of characters
     loadCharacterList();
 
+    // Create button
     const createBtn = document.getElementById("createCharacterBtn");
-    createBtn.addEventListener("click", createCharacter);
+    if (createBtn) {
+        createBtn.addEventListener("click", createCharacter);
+    }
+
+    // Close Character button in nav bar
+    const closeBtn = document.getElementById("closeCharacter");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            localStorage.removeItem("currentCharacter");
+        });
+    }
 });
+
 
 function loadCharacterList() {
     const listElement = document.getElementById("characterList");
