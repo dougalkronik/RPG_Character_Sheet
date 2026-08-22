@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
     requireCharacter();
     loadExperience();
+    setupExperienceHandlers();
     loadAttributes();
     loadSkills();
-    setupExperienceHandlers();
     setupSkillAdd();
     setupSkillSort();
 });
 
-// =========================
-// EXPERIENCE
-// =========================
+/* ============================
+   EXPERIENCE
+============================ */
 
 function loadExperience() {
     const c = getCharacterObject();
@@ -23,26 +23,30 @@ function setupExperienceHandlers() {
     const spent = document.getElementById("expSpent");
 
     acc.addEventListener("input", () => {
-        saveCharacterField("expAccumulated", Number(acc.value));
-        if (Number(spent.value) > Number(acc.value)) {
-            spent.value = acc.value;
-            saveCharacterField("expSpent", Number(acc.value));
+        const a = Number(acc.value);
+        saveCharacterField("expAccumulated", a);
+
+        if (Number(spent.value) > a) {
+            spent.value = a;
+            saveCharacterField("expSpent", a);
         }
     });
 
     spent.addEventListener("input", () => {
         const s = Number(spent.value);
         const a = Number(acc.value);
+
         if (s > a) {
             spent.value = a;
         }
+
         saveCharacterField("expSpent", Number(spent.value));
     });
 }
 
-// =========================
-// ATTRIBUTE GROUPS
-// =========================
+/* ============================
+   ATTRIBUTE GROUPS
+============================ */
 
 const physical = ["Strength", "Toughness", "Stamina", "Agility", "Dexterity"];
 const mental = ["Intelligence", "Wisdom", "Charisma", "Fellowship", "Willpower"];
@@ -55,7 +59,7 @@ function loadAttributes() {
     buildAttributeGroup("mentalContainer", mental, c);
     buildAttributeGroup("abilitiesContainer", abilities, c);
 
-    populateSkillDropdowns();
+    populateSkillAttributeDropdowns();
 }
 
 function buildAttributeGroup(containerId, list, c) {
@@ -93,46 +97,43 @@ function buildAttributeGroup(containerId, list, c) {
 function updateAttributeModifier(key, delta) {
     const c = getCharacterObject();
     const modKey = key + "_mod";
-    const newMod = (c[modKey] || 0) + delta;
-
-    c[modKey] = newMod;
+    c[modKey] = (c[modKey] || 0) + delta;
     localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-
     loadAttributes();
 }
 
-// =========================
-// SKILLS
-// =========================
+/* ============================
+   SKILLS
+============================ */
 
 function loadSkills() {
     const c = getCharacterObject();
     if (!c.skills) c.skills = [];
 
     ensureBaseSkills(c);
-
     renderSkillList(c.skills);
 }
 
 function ensureBaseSkills(c) {
     const baseSkills = [
-        { name: "Run", phys: "Strength", ment: "Stamina", ability: "Melee", formula: "run" },
-        { name: "Swim", phys: "Toughness", ment: "Stamina", ability: "Melee", formula: "swim" },
-        { name: "Jump (High)", phys: "Strength", ment: "Agility", ability: "Melee", formula: "jumpHigh" },
-        { name: "Jump (Long)", phys: "Strength", ment: "Agility", ability: "Melee", formula: "jumpLong" },
-        { name: "Climb", phys: "Strength", ment: "Dexterity", ability: "Melee", formula: "climb" },
-        { name: "Leadership", phys: "Charisma", ment: "Fellowship", ability: "Divine", formula: "lead" }
+        { name: "Run", a1: "Strength", a2: "Stamina", ability: "Melee", category: "Adventure", div: 10 },
+        { name: "Swim", a1: "Toughness", a2: "Stamina", ability: "Melee", category: "Adventure", div: 10 },
+        { name: "Jump (High)", a1: "Strength", a2: "Agility", ability: "Melee", category: "Adventure", div: 40 },
+        { name: "Jump (Long)", a1: "Strength", a2: "Agility", ability: "Melee", category: "Adventure", div: 20 },
+        { name: "Climb", a1: "Strength", a2: "Dexterity", ability: "Melee", category: "Adventure", div: 20 },
+        { name: "Leadership", a1: "Charisma", a2: "Fellowship", ability: "Divine", category: "Command", div: 20 }
     ];
 
     baseSkills.forEach(base => {
         if (!c.skills.some(s => s.name === base.name)) {
             c.skills.push({
                 name: base.name,
-                phys: base.phys,
-                ment: base.ment,
+                attr1: base.a1,
+                attr2: base.a2,
                 ability: base.ability,
+                category: base.category,
                 mod: 0,
-                formula: base.formula
+                divisor: base.div
             });
         }
     });
@@ -149,16 +150,23 @@ function renderSkillList(skills) {
     skills
         .filter(s => sort === "All" || s.ability === sort)
         .forEach((skill, index) => {
+
+            const total = calculateSkillTotal(skill);
+
             const li = document.createElement("li");
 
             li.innerHTML = `
-                <strong>${skill.name}</strong>
-                <span>${skill.phys}</span>
-                <span>${skill.ment}</span>
-                <span>${skill.ability}</span>
+                <strong>${skill.name}</strong><br>
+                <span>${skill.attr1}</span> |
+                <span>${skill.attr2}</span> |
+                <span>${skill.ability}</span> |
+                <span>${skill.category}</span><br>
+
                 <button class="minusSkill">-</button>
                 <span class="skillMod">${skill.mod}</span>
                 <button class="plusSkill">+</button>
+
+                <span class="skillTotal">Total: ${total}</span>
             `;
 
             li.querySelector(".minusSkill").addEventListener("click", () => {
@@ -173,6 +181,20 @@ function renderSkillList(skills) {
         });
 }
 
+function calculateSkillTotal(skill) {
+    const c = getCharacterObject();
+
+    const a1Key = skill.attr1.replace(/\s+/g, "_") + "_mod";
+    const a2Key = skill.attr2.replace(/\s+/g, "_") + "_mod";
+
+    const a1Total = 20 + (c[a1Key] || 0);
+    const a2Total = 20 + (c[a2Key] || 0);
+
+    const raw = a1Total + a2Total + skill.mod;
+
+    return skill.divisor ? Math.floor(raw / skill.divisor) : raw;
+}
+
 function updateSkillMod(index, delta) {
     const c = getCharacterObject();
     c.skills[index].mod += delta;
@@ -183,12 +205,18 @@ function updateSkillMod(index, delta) {
 function setupSkillAdd() {
     document.getElementById("addSkillBtn").addEventListener("click", () => {
         const name = document.getElementById("skillName").value.trim();
-        const phys = document.getElementById("skillPhysical").value;
-        const ment = document.getElementById("skillMental").value;
+        const attr1 = document.getElementById("skillAttr1").value;
+        const attr2 = document.getElementById("skillAttr2").value;
         const ability = document.getElementById("skillAbility").value;
+        const category = document.getElementById("skillCategory").value;
 
         if (!name) {
             alert("Enter a skill name");
+            return;
+        }
+
+        if (attr1 === attr2) {
+            alert("Attribute 1 and Attribute 2 must be different");
             return;
         }
 
@@ -197,16 +225,18 @@ function setupSkillAdd() {
 
         c.skills.push({
             name,
-            phys,
-            ment,
+            attr1,
+            attr2,
             ability,
+            category,
             mod: 0,
-            formula: null
+            divisor: null
         });
 
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
         document.getElementById("skillName").value = "";
+
         renderSkillList(c.skills);
     });
 }
@@ -218,22 +248,22 @@ function setupSkillSort() {
     });
 }
 
-function populateSkillDropdowns() {
-    const physSel = document.getElementById("skillPhysical");
-    const mentSel = document.getElementById("skillMental");
+function populateSkillAttributeDropdowns() {
+    const allAttrs = [...physical, ...mental];
 
-    physSel.innerHTML = "";
-    mentSel.innerHTML = "";
+    const a1 = document.getElementById("skillAttr1");
+    const a2 = document.getElementById("skillAttr2");
 
-    physical.forEach(p => {
-        const opt = document.createElement("option");
-        opt.textContent = p;
-        physSel.appendChild(opt);
-    });
+    a1.innerHTML = "";
+    a2.innerHTML = "";
 
-    mental.forEach(m => {
-        const opt = document.createElement("option");
-        opt.textContent = m;
-        mentSel.appendChild(opt);
+    allAttrs.forEach(attr => {
+        const opt1 = document.createElement("option");
+        opt1.textContent = attr;
+        a1.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.textContent = attr;
+        a2.appendChild(opt2);
     });
 }
