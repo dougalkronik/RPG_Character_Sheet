@@ -20,6 +20,7 @@
 
 <h1>Attributes</h1>
 
+<!-- EXPERIENCE -->
 <h2>Experience</h2>
 <label>Accumulated</label>
 <input type="number" id="expAccumulated" min="0">
@@ -29,18 +30,23 @@
 
 <hr>
 
+<!-- PHYSICAL -->
 <h2>Physical Aspects</h2>
 <div id="physicalContainer"></div>
 
+<!-- MENTAL -->
 <h2>Mental Aspects</h2>
 <div id="mentalContainer"></div>
 
+<!-- ABILITIES -->
 <h2>Abilities</h2>
 <div id="abilitiesContainer"></div>
 
 <hr>
 
-<h2>Skills 
+<!-- SKILLS -->
+<h2>
+    Skills
     <select id="skillSort">
         <option value="All">All</option>
         <option value="Melee">Melee</option>
@@ -52,14 +58,15 @@
 </h2>
 
 <h3>Add Skill</h3>
+
 <label>Skill Name</label>
 <input type="text" id="skillName">
 
-<label>Physical Attribute</label>
-<select id="skillPhysical"></select>
+<label>Attribute 1</label>
+<select id="skillAttr1"></select>
 
-<label>Mental Attribute</label>
-<select id="skillMental"></select>
+<label>Attribute 2</label>
+<select id="skillAttr2"></select>
 
 <label>Ability</label>
 <select id="skillAbility">
@@ -68,6 +75,15 @@
     <option>Arcane</option>
     <option>Divine</option>
     <option>Nature</option>
+</select>
+
+<label>Category</label>
+<select id="skillCategory">
+    <option>Combat</option>
+    <option>Adventure</option>
+    <option>Command</option>
+    <option>Tactical</option>
+    <option>Strategic</option>
 </select>
 
 <button id="addSkillBtn">Add Skill</button>
