@@ -13,9 +13,9 @@
     <a href="profile.html">Profile</a>
     <a href="attributes.html">Attributes</a>
     <a href="inventory.html">Inventory</a>
-    <a href="gear_equipped.html">Gear Equipped</a>
     <a href="combat.html">Combat</a>
     <a href="followers.html">Followers</a>
+    <a href="gear_equipped.html">Gear Equipped</a>
     <a href="selection.html" id="closeCharacter">Close Character</a>
 </nav>
 
@@ -72,11 +72,15 @@
 <label>Bonus Type</label>
 <select id="itemBonusType">
     <option>None</option>
-    <option>Attack</option>
-    <option>Defense</option>
-    <option>Magic</option>
-    <option>Skill</option>
-    <option>Other</option>
+    <option>Damage</option>
+    <option>Melee Attack</option>
+    <option>Ranged Attack</option>
+    <option>Arcane Ability</option>
+    <option>Divinity Ability</option>
+    <option>Nature Ability</option>
+    <option>Command</option>
+    <option>Tactical Control</option>
+    <option>Strategic Control</option>
 </select>
 
 <label>Bonus Value</label>
@@ -87,7 +91,46 @@
 
 <button id="addItemBtn">Add Item</button>
 
-<h3>Inventory List</h3>
+<h3>
+    Inventory List
+    Type:
+    <select id="filterType">
+        <option value="All">All</option>
+        <option>Armour</option>
+        <option>Weapon</option>
+        <option>Ammunition</option>
+        <option>Consumable</option>
+        <option>Equipment</option>
+        <option>Clothing</option>
+        <option>Storage</option>
+    </select>
+    Location:
+    <select id="filterLocation">
+        <option value="All">All</option>
+        <option>Worn</option>
+        <option>Belt</option>
+        <option>Backpack</option>
+        <option>Mount</option>
+        <option>Home</option>
+        <option>Left Hand</option>
+        <option>Right Hand</option>
+        <option>Both Hands</option>
+    </select>
+    Bonus:
+    <select id="filterBonus">
+        <option value="All">All</option>
+        <option>Damage</option>
+        <option>Melee Attack</option>
+        <option>Ranged Attack</option>
+        <option>Arcane Ability</option>
+        <option>Divinity Ability</option>
+        <option>Nature Ability</option>
+        <option>Command</option>
+        <option>Tactical Control</option>
+        <option>Strategic Control</option>
+    </select>
+</h3>
+
 <ul id="inventoryList"></ul>
 
 <hr>
