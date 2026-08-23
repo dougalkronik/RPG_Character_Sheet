@@ -116,20 +116,17 @@ function loadTreasure() {
     const c = getCharacterObject();
     if (!c.treasure) c.treasure = [];
 
-    ensureBaseMoneyTreasure(c);
-    renderTreasureList(c.treasure);
-}
-
-function ensureBaseMoneyTreasure(c) {
+    // Ensure Money exists as first item
     if (!c.treasure.some(t => t.name === "Money")) {
         c.treasure.unshift({
             name: "Money",
             value: 1,
-            quantity: 0,
-            fixed: true
+            quantity: 0
         });
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     }
+
+    renderTreasureList(c.treasure);
 }
 
 function renderTreasureList(treasure) {
@@ -137,6 +134,7 @@ function renderTreasureList(treasure) {
     list.innerHTML = "";
 
     let totalAssets = 0;
+    const c = getCharacterObject();
 
     treasure.forEach((t, index) => {
         const total = t.value * t.quantity;
@@ -146,12 +144,12 @@ function renderTreasureList(treasure) {
 
         li.innerHTML = `
             <strong>${t.name}</strong><br>
-            Value: 
+            Value:
             <button class="valueMinus">-</button>
             <span class="valueDisplay">${t.value}</span>
             <button class="valuePlus">+</button>
             &nbsp;|&nbsp;
-            Qty: 
+            Qty:
             <button class="qtyMinus">-</button>
             <span class="qtyDisplay">${t.quantity}</span>
             <button class="qtyPlus">+</button>
@@ -160,53 +158,54 @@ function renderTreasureList(treasure) {
             ${t.name === "Money" ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
         `;
 
-        // We always work on c.treasure[index] explicitly
-        const c = getCharacterObject();
-
-        // Value buttons
+        /* VALUE - */
         li.querySelector(".valueMinus").addEventListener("click", () => {
             const item = c.treasure[index];
             if (item.value > 0) {
                 item.value -= 1;
-                localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-                renderTreasureList(c.treasure);
+                saveTreasureAndRefresh(c);
             }
         });
 
+        /* VALUE + */
         li.querySelector(".valuePlus").addEventListener("click", () => {
             const item = c.treasure[index];
             item.value += 1;
-            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-            renderTreasureList(c.treasure);
+            saveTreasureAndRefresh(c);
         });
 
-        // Quantity buttons
+        /* QTY - */
         li.querySelector(".qtyMinus").addEventListener("click", () => {
             const item = c.treasure[index];
+
             if (item.name === "Money") {
+                // Money cannot go below 0
                 if (item.quantity > 0) {
                     item.quantity -= 1;
                 }
             } else {
-                if (item.quantity > 0) {
-                    item.quantity -= 1;
+                // Other items delete if quantity drops below 1
+                item.quantity -= 1;
+                if (item.quantity < 1) {
+                    c.treasure.splice(index, 1);
                 }
             }
-            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-            renderTreasureList(c.treasure);
+
+            saveTreasureAndRefresh(c);
         });
 
+        /* QTY + */
         li.querySelector(".qtyPlus").addEventListener("click", () => {
             const item = c.treasure[index];
             item.quantity += 1;
-            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-            renderTreasureList(c.treasure);
+            saveTreasureAndRefresh(c);
         });
 
-        // Delete (never for Money)
+        /* DELETE (never for Money) */
         if (t.name !== "Money") {
             li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
-                deleteTreasureItem(index);
+                c.treasure.splice(index, 1);
+                saveTreasureAndRefresh(c);
             });
         }
 
@@ -214,6 +213,11 @@ function renderTreasureList(treasure) {
     });
 
     document.getElementById("totalAssets").textContent = totalAssets;
+}
+
+function saveTreasureAndRefresh(c) {
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    renderTreasureList(c.treasure);
 }
 
 function setupTreasureAdd() {
@@ -233,8 +237,7 @@ function setupTreasureAdd() {
         c.treasure.push({
             name,
             value,
-            quantity,
-            fixed: false
+            quantity
         });
 
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
@@ -244,16 +247,3 @@ function setupTreasureAdd() {
         renderTreasureList(c.treasure);
     });
 }
-
-function deleteTreasureItem(index) {
-    const c = getCharacterObject();
-    const item = c.treasure[index];
-
-    // Never delete Money
-    if (item && item.name !== "Money") {
-        c.treasure.splice(index, 1);
-        localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-        renderTreasureList(c.treasure);
-    }
-}
-
