@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     requireCharacter();
+    setupWornSlotToggle();
     loadInventory();
     loadTreasure();
     setupItemAdd();
@@ -8,13 +9,29 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ============================
+   WORN SLOT ENABLE/DISABLE
+============================ */
+
+function setupWornSlotToggle() {
+    const loc = document.getElementById("itemLocation");
+    const wornSlot = document.getElementById("wornSlot");
+
+    loc.addEventListener("change", () => {
+        if (loc.value === "Worn") {
+            wornSlot.disabled = false;
+        } else {
+            wornSlot.disabled = true;
+        }
+    });
+}
+
+/* ============================
    INVENTORY
 ============================ */
 
 function loadInventory() {
     const c = getCharacterObject();
     if (!c.inventory) c.inventory = [];
-
     renderInventoryList(c.inventory);
 }
 
@@ -38,11 +55,16 @@ function renderInventoryList(items) {
             li.innerHTML = `
                 <strong>${item.name}</strong><br>
                 Type: ${item.type} |
-                Location: ${item.location} |
+                Location: ${item.location}${item.location === "Worn" && item.wornSlot ? " (" + item.wornSlot + ")" : ""} |
                 Qty: ${item.quantity} |
                 Bonus: ${item.bonusType} ${item.bonusValue}<br>
+                <button class="equipItemBtn">Equip</button>
                 <button class="deleteItemBtn">Delete</button>
             `;
+
+            li.querySelector(".equipItemBtn").addEventListener("click", () => {
+                equipItem(item);
+            });
 
             li.querySelector(".deleteItemBtn").addEventListener("click", () => {
                 deleteInventoryItem(index);
@@ -57,6 +79,7 @@ function setupItemAdd() {
         const name = document.getElementById("itemName").value.trim();
         const type = document.getElementById("itemType").value;
         const location = document.getElementById("itemLocation").value;
+        const wornSlot = document.getElementById("wornSlot").disabled ? "" : document.getElementById("wornSlot").value;
         const size = document.getElementById("itemSize").value;
         const stackable = document.getElementById("itemStackable").checked;
         const quantity = Number(document.getElementById("itemQuantity").value);
@@ -72,17 +95,20 @@ function setupItemAdd() {
         const c = getCharacterObject();
         if (!c.inventory) c.inventory = [];
 
-        c.inventory.push({
+        const item = {
             name,
             type,
             location,
+            wornSlot,
             size,
             stackable,
             quantity,
             bonusType,
             bonusValue,
             slots
-        });
+        };
+
+        c.inventory.push(item);
 
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
@@ -109,6 +135,116 @@ function setupInventoryFilters() {
 }
 
 /* ============================
+   EQUIP LOGIC
+============================ */
+
+function equipItem(item) {
+    const c = getCharacterObject();
+    const sizeKey = item.size.split(" ")[0]; // Tiny, Small, Medium, Large, etc.
+
+    // HANDS (weapon/equipment)
+    if (item.location === "Left Hand") {
+        if (item.type === "Weapon" || item.type === "Equipment") {
+            if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
+                c.equipped_lefthand = item.name;
+            } else if (sizeKey === "Large") {
+                c.equipped_lefthand = item.name;
+                c.equipped_righthand = item.name;
+            }
+        }
+    }
+
+    if (item.location === "Right Hand") {
+        if (item.type === "Weapon" || item.type === "Equipment") {
+            if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
+                c.equipped_righthand = item.name;
+            } else if (sizeKey === "Large") {
+                c.equipped_lefthand = item.name;
+                c.equipped_righthand = item.name;
+            }
+        }
+    }
+
+    if (item.location === "Both Hands") {
+        if (item.type === "Weapon" || item.type === "Equipment") {
+            c.equipped_lefthand = item.name;
+            c.equipped_righthand = item.name;
+        }
+    }
+
+    // WORN ITEMS
+    if (item.location === "Worn") {
+        switch (item.type) {
+            case "Ring":
+                if (!c.equipped_rings) c.equipped_rings = [];
+                if (c.equipped_rings.length < 10) c.equipped_rings.push(item.name);
+                break;
+            case "Earring":
+                if (!c.equipped_earrings) c.equipped_earrings = [];
+                if (c.equipped_earrings.length < 10) c.equipped_earrings.push(item.name);
+                break;
+            case "Necklace":
+                if (!c.equipped_necklaces) c.equipped_necklaces = [];
+                if (c.equipped_necklaces.length < 10) c.equipped_necklaces.push(item.name);
+                break;
+            case "Clothing":
+            case "Armour":
+                equipClothingArmour(c, item, sizeKey);
+                break;
+        }
+    }
+
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    alert(item.name + " equipped.");
+}
+
+function equipClothingArmour(c, item, sizeKey) {
+    const slot = item.wornSlot;
+
+    // Legs
+    if (slot === "Left Leg" || slot === "Right Leg") {
+        if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
+            if (slot === "Left Leg") c.equipped_leftleg = item.name;
+            if (slot === "Right Leg") c.equipped_rightleg = item.name;
+        } else if (sizeKey === "Large") {
+            c.equipped_leftleg = item.name;
+            c.equipped_rightleg = item.name;
+        }
+    }
+
+    // Arms
+    if (slot === "Left Arm" || slot === "Right Arm") {
+        if (sizeKey === "Tiny" || sizeKey === "Small") {
+            if (slot === "Left Arm") c.equipped_leftarm = item.name;
+            if (slot === "Right Arm") c.equipped_rightarm = item.name;
+        } else if (sizeKey === "Medium") {
+            c.equipped_leftarm = item.name;
+            c.equipped_rightarm = item.name;
+        }
+    }
+
+    // Body
+    if (slot === "Body") {
+        c.equipped_body = item.name;
+        if (sizeKey === "Large") {
+            // Large body item also covers both arms
+            c.equipped_leftarm = item.name;
+            c.equipped_rightarm = item.name;
+        }
+    }
+
+    // Head
+    if (slot === "Head") {
+        c.equipped_head = item.name;
+    }
+
+    // Cloak
+    if (slot === "Cloak") {
+        c.equipped_cloak = item.name;
+    }
+}
+
+/* ============================
    TREASURE
 ============================ */
 
@@ -116,7 +252,6 @@ function loadTreasure() {
     const c = getCharacterObject();
     if (!c.treasure) c.treasure = [];
 
-    // Ensure Money exists as first item
     if (!c.treasure.some(t => t.name === "Money")) {
         c.treasure.unshift({
             name: "Money",
@@ -158,33 +293,24 @@ function renderTreasureList(treasure) {
             ${t.name === "Money" ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
         `;
 
-        /* VALUE - */
         li.querySelector(".valueMinus").addEventListener("click", () => {
             const item = c.treasure[index];
-            if (item.value > 0) {
-                item.value -= 1;
-                saveTreasureAndRefresh(c);
-            }
+            if (item.value > 0) item.value -= 1;
+            saveTreasureAndRefresh(c);
         });
 
-        /* VALUE + */
         li.querySelector(".valuePlus").addEventListener("click", () => {
             const item = c.treasure[index];
             item.value += 1;
             saveTreasureAndRefresh(c);
         });
 
-        /* QTY - */
         li.querySelector(".qtyMinus").addEventListener("click", () => {
             const item = c.treasure[index];
 
             if (item.name === "Money") {
-                // Money cannot go below 0
-                if (item.quantity > 0) {
-                    item.quantity -= 1;
-                }
+                if (item.quantity > 0) item.quantity -= 1;
             } else {
-                // Other items delete if quantity drops below 1
                 item.quantity -= 1;
                 if (item.quantity < 1) {
                     c.treasure.splice(index, 1);
@@ -194,14 +320,12 @@ function renderTreasureList(treasure) {
             saveTreasureAndRefresh(c);
         });
 
-        /* QTY + */
         li.querySelector(".qtyPlus").addEventListener("click", () => {
             const item = c.treasure[index];
             item.quantity += 1;
             saveTreasureAndRefresh(c);
         });
 
-        /* DELETE (never for Money) */
         if (t.name !== "Money") {
             li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
                 c.treasure.splice(index, 1);
