@@ -157,35 +157,39 @@ function renderTreasureList(treasure) {
             <button class="qtyPlus">+</button>
             &nbsp;|&nbsp;
             Total: ${total}
-            ${t.fixed ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
+            ${t.name === "Money" ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
         `;
 
+        // We always work on c.treasure[index] explicitly
         const c = getCharacterObject();
 
         // Value buttons
         li.querySelector(".valueMinus").addEventListener("click", () => {
-            if (t.value > 0) {
-                t.value -= 1;
+            const item = c.treasure[index];
+            if (item.value > 0) {
+                item.value -= 1;
                 localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
                 renderTreasureList(c.treasure);
             }
         });
 
         li.querySelector(".valuePlus").addEventListener("click", () => {
-            t.value += 1;
+            const item = c.treasure[index];
+            item.value += 1;
             localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
             renderTreasureList(c.treasure);
         });
 
         // Quantity buttons
         li.querySelector(".qtyMinus").addEventListener("click", () => {
-            if (t.name === "Money") {
-                if (t.quantity > 0) {
-                    t.quantity -= 1;
+            const item = c.treasure[index];
+            if (item.name === "Money") {
+                if (item.quantity > 0) {
+                    item.quantity -= 1;
                 }
             } else {
-                if (t.quantity > 0) {
-                    t.quantity -= 1;
+                if (item.quantity > 0) {
+                    item.quantity -= 1;
                 }
             }
             localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
@@ -193,13 +197,14 @@ function renderTreasureList(treasure) {
         });
 
         li.querySelector(".qtyPlus").addEventListener("click", () => {
-            t.quantity += 1;
+            const item = c.treasure[index];
+            item.quantity += 1;
             localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
             renderTreasureList(c.treasure);
         });
 
-        // Delete (not for Money)
-        if (!t.fixed) {
+        // Delete (never for Money)
+        if (t.name !== "Money") {
             li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
                 deleteTreasureItem(index);
             });
@@ -242,10 +247,13 @@ function setupTreasureAdd() {
 
 function deleteTreasureItem(index) {
     const c = getCharacterObject();
-    const t = c.treasure[index];
-    if (t && !t.fixed) {
+    const item = c.treasure[index];
+
+    // Never delete Money
+    if (item && item.name !== "Money") {
         c.treasure.splice(index, 1);
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
         renderTreasureList(c.treasure);
     }
 }
+
