@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTreasure();
     setupItemAdd();
     setupTreasureAdd();
+    setupInventoryFilters();
 });
 
 /* ============================
@@ -14,27 +15,41 @@ function loadInventory() {
     const c = getCharacterObject();
     if (!c.inventory) c.inventory = [];
 
+    renderInventoryList(c.inventory);
+}
+
+function renderInventoryList(items) {
     const list = document.getElementById("inventoryList");
     list.innerHTML = "";
 
-    c.inventory.forEach((item, index) => {
-        const li = document.createElement("li");
+    const typeFilter = document.getElementById("filterType").value;
+    const locFilter = document.getElementById("filterLocation").value;
+    const bonusFilter = document.getElementById("filterBonus").value;
 
-        li.innerHTML = `
-            <strong>${item.name}</strong><br>
-            Type: ${item.type} |
-            Location: ${item.location} |
-            Qty: ${item.quantity} |
-            Bonus: ${item.bonusType} ${item.bonusValue}<br>
-            <button class="deleteItemBtn">Delete</button>
-        `;
+    items
+        .filter(item =>
+            (typeFilter === "All" || item.type === typeFilter) &&
+            (locFilter === "All" || item.location === locFilter) &&
+            (bonusFilter === "All" || item.bonusType === bonusFilter)
+        )
+        .forEach((item, index) => {
+            const li = document.createElement("li");
 
-        li.querySelector(".deleteItemBtn").addEventListener("click", () => {
-            deleteInventoryItem(index);
+            li.innerHTML = `
+                <strong>${item.name}</strong><br>
+                Type: ${item.type} |
+                Location: ${item.location} |
+                Qty: ${item.quantity} |
+                Bonus: ${item.bonusType} ${item.bonusValue}<br>
+                <button class="deleteItemBtn">Delete</button>
+            `;
+
+            li.querySelector(".deleteItemBtn").addEventListener("click", () => {
+                deleteInventoryItem(index);
+            });
+
+            list.appendChild(li);
         });
-
-        list.appendChild(li);
-    });
 }
 
 function setupItemAdd() {
@@ -84,6 +99,15 @@ function deleteInventoryItem(index) {
     loadInventory();
 }
 
+function setupInventoryFilters() {
+    ["filterType", "filterLocation", "filterBonus"].forEach(id => {
+        document.getElementById(id).addEventListener("change", () => {
+            const c = getCharacterObject();
+            renderInventoryList(c.inventory || []);
+        });
+    });
+}
+
 /* ============================
    TREASURE
 ============================ */
@@ -92,12 +116,29 @@ function loadTreasure() {
     const c = getCharacterObject();
     if (!c.treasure) c.treasure = [];
 
+    ensureBaseMoneyTreasure(c);
+    renderTreasureList(c.treasure);
+}
+
+function ensureBaseMoneyTreasure(c) {
+    if (!c.treasure.some(t => t.name === "Money")) {
+        c.treasure.unshift({
+            name: "Money",
+            value: 1,
+            quantity: 0,
+            fixed: true
+        });
+        localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    }
+}
+
+function renderTreasureList(treasure) {
     const list = document.getElementById("treasureList");
     list.innerHTML = "";
 
     let totalAssets = 0;
 
-    c.treasure.forEach((t, index) => {
+    treasure.forEach((t, index) => {
         const total = t.value * t.quantity;
         totalAssets += total;
 
@@ -105,15 +146,64 @@ function loadTreasure() {
 
         li.innerHTML = `
             <strong>${t.name}</strong><br>
-            Value: ${t.value} |
-            Qty: ${t.quantity} |
-            Total: ${total}<br>
-            <button class="deleteTreasureBtn">Delete</button>
+            Value: 
+            <button class="valueMinus">-</button>
+            <span class="valueDisplay">${t.value}</span>
+            <button class="valuePlus">+</button>
+            &nbsp;|&nbsp;
+            Qty: 
+            <button class="qtyMinus">-</button>
+            <span class="qtyDisplay">${t.quantity}</span>
+            <button class="qtyPlus">+</button>
+            &nbsp;|&nbsp;
+            Total: ${total}
+            ${t.fixed ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
         `;
 
-        li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
-            deleteTreasureItem(index);
+        const c = getCharacterObject();
+
+        // Value buttons
+        li.querySelector(".valueMinus").addEventListener("click", () => {
+            if (t.value > 0) {
+                t.value -= 1;
+                localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+                renderTreasureList(c.treasure);
+            }
         });
+
+        li.querySelector(".valuePlus").addEventListener("click", () => {
+            t.value += 1;
+            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+            renderTreasureList(c.treasure);
+        });
+
+        // Quantity buttons
+        li.querySelector(".qtyMinus").addEventListener("click", () => {
+            if (t.name === "Money") {
+                if (t.quantity > 0) {
+                    t.quantity -= 1;
+                }
+            } else {
+                if (t.quantity > 0) {
+                    t.quantity -= 1;
+                }
+            }
+            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+            renderTreasureList(c.treasure);
+        });
+
+        li.querySelector(".qtyPlus").addEventListener("click", () => {
+            t.quantity += 1;
+            localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+            renderTreasureList(c.treasure);
+        });
+
+        // Delete (not for Money)
+        if (!t.fixed) {
+            li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
+                deleteTreasureItem(index);
+            });
+        }
 
         list.appendChild(li);
     });
@@ -138,20 +228,24 @@ function setupTreasureAdd() {
         c.treasure.push({
             name,
             value,
-            quantity
+            quantity,
+            fixed: false
         });
 
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
         document.getElementById("treasureName").value = "";
 
-        loadTreasure();
+        renderTreasureList(c.treasure);
     });
 }
 
 function deleteTreasureItem(index) {
     const c = getCharacterObject();
-    c.treasure.splice(index, 1);
-    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-    loadTreasure();
+    const t = c.treasure[index];
+    if (t && !t.fixed) {
+        c.treasure.splice(index, 1);
+        localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+        renderTreasureList(c.treasure);
+    }
 }
