@@ -21,6 +21,7 @@ function setupWornSlotToggle() {
             wornSlot.disabled = false;
         } else {
             wornSlot.disabled = true;
+            wornSlot.value = "Head"; // reset to default
         }
     });
 }
