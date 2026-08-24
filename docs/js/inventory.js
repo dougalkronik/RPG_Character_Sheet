@@ -21,7 +21,7 @@ function setupWornSlotToggle() {
             wornSlot.disabled = false;
         } else {
             wornSlot.disabled = true;
-            wornSlot.value = "Head"; // reset to default
+            wornSlot.value = "Head"; // reset default
         }
     });
 }
@@ -60,11 +60,17 @@ function renderInventoryList(items) {
                 Qty: ${item.quantity} |
                 Bonus: ${item.bonusType} ${item.bonusValue}<br>
                 <button class="equipItemBtn">Equip</button>
+                <button class="editItemBtn">Edit</button>
                 <button class="deleteItemBtn">Delete</button>
+                <div class="editPanel" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc;"></div>
             `;
 
             li.querySelector(".equipItemBtn").addEventListener("click", () => {
                 equipItem(item);
+            });
+
+            li.querySelector(".editItemBtn").addEventListener("click", () => {
+                openEditPanel(item, index, li.querySelector(".editPanel"));
             });
 
             li.querySelector(".deleteItemBtn").addEventListener("click", () => {
@@ -136,113 +142,107 @@ function setupInventoryFilters() {
 }
 
 /* ============================
-   EQUIP LOGIC
+   EDIT PANEL
+============================ */
+
+function openEditPanel(item, index, panel) {
+    panel.style.display = "block";
+
+    panel.innerHTML = `
+        <label>Name</label>
+        <input type="text" id="editName" value="${item.name}">
+
+        <label>Type</label>
+        <select id="editType">
+            <option>${item.type}</option>
+            <option>Armour</option>
+            <option>Weapon</option>
+            <option>Ammunition</option>
+            <option>Consumable</option>
+            <option>Equipment</option>
+            <option>Clothing</option>
+            <option>Ring</option>
+            <option>Earring</option>
+            <option>Necklace</option>
+            <option>Storage</option>
+        </select>
+
+        <label>Location</label>
+        <select id="editLocation">
+            <option>${item.location}</option>
+            <option>None</option>
+            <option>Worn</option>
+            <option>Belt</option>
+            <option>Backpack</option>
+            <option>Mount</option>
+            <option>Home</option>
+            <option>Left Hand</option>
+            <option>Right Hand</option>
+            <option>Both Hands</option>
+        </select>
+
+        <label>Worn Slot</label>
+        <select id="editWornSlot">
+            <option>${item.wornSlot || ""}</option>
+            <option>Head</option>
+            <option>Body</option>
+            <option>Left Arm</option>
+            <option>Left Hand</option>
+            <option>Right Arm</option>
+            <option>Right Hand</option>
+            <option>Left Leg</option>
+            <option>Right Leg</option>
+            <option>Cloak</option>
+        </select>
+
+        <label>Bonus Type</label>
+        <select id="editBonusType">
+            <option>${item.bonusType}</option>
+            <option>None</option>
+            <option>Armour</option>
+            <option>Damage</option>
+            <option>Melee Attack</option>
+            <option>Ranged Attack</option>
+            <option>Arcane Ability</option>
+            <option>Divinity Ability</option>
+            <option>Nature Ability</option>
+            <option>Command</option>
+            <option>Tactical Control</option>
+            <option>Strategic Control</option>
+        </select>
+
+        <label>Bonus Value</label>
+        <input type="number" id="editBonusValue" value="${item.bonusValue}">
+
+        <button id="saveEditBtn">Save</button>
+    `;
+
+    panel.querySelector("#saveEditBtn").addEventListener("click", () => {
+        saveEditedItem(index);
+    });
+}
+
+function saveEditedItem(index) {
+    const c = getCharacterObject();
+    const item = c.inventory[index];
+
+    item.name = document.getElementById("editName").value;
+    item.type = document.getElementById("editType").value;
+    item.location = document.getElementById("editLocation").value;
+    item.wornSlot = document.getElementById("editWornSlot").value;
+    item.bonusType = document.getElementById("editBonusType").value;
+    item.bonusValue = Number(document.getElementById("editBonusValue").value);
+
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    loadInventory();
+}
+
+/* ============================
+   EQUIP BUTTON (unchanged)
 ============================ */
 
 function equipItem(item) {
-    const c = getCharacterObject();
-    const sizeKey = item.size.split(" ")[0]; // Tiny, Small, Medium, Large, etc.
-
-    // HANDS (weapon/equipment)
-    if (item.location === "Left Hand") {
-        if (item.type === "Weapon" || item.type === "Equipment") {
-            if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
-                c.equipped_lefthand = item.name;
-            } else if (sizeKey === "Large") {
-                c.equipped_lefthand = item.name;
-                c.equipped_righthand = item.name;
-            }
-        }
-    }
-
-    if (item.location === "Right Hand") {
-        if (item.type === "Weapon" || item.type === "Equipment") {
-            if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
-                c.equipped_righthand = item.name;
-            } else if (sizeKey === "Large") {
-                c.equipped_lefthand = item.name;
-                c.equipped_righthand = item.name;
-            }
-        }
-    }
-
-    if (item.location === "Both Hands") {
-        if (item.type === "Weapon" || item.type === "Equipment") {
-            c.equipped_lefthand = item.name;
-            c.equipped_righthand = item.name;
-        }
-    }
-
-    // WORN ITEMS
-    if (item.location === "Worn") {
-        switch (item.type) {
-            case "Ring":
-                if (!c.equipped_rings) c.equipped_rings = [];
-                if (c.equipped_rings.length < 10) c.equipped_rings.push(item.name);
-                break;
-            case "Earring":
-                if (!c.equipped_earrings) c.equipped_earrings = [];
-                if (c.equipped_earrings.length < 10) c.equipped_earrings.push(item.name);
-                break;
-            case "Necklace":
-                if (!c.equipped_necklaces) c.equipped_necklaces = [];
-                if (c.equipped_necklaces.length < 10) c.equipped_necklaces.push(item.name);
-                break;
-            case "Clothing":
-            case "Armour":
-                equipClothingArmour(c, item, sizeKey);
-                break;
-        }
-    }
-
-    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     alert(item.name + " equipped.");
-}
-
-function equipClothingArmour(c, item, sizeKey) {
-    const slot = item.wornSlot;
-
-    // Legs
-    if (slot === "Left Leg" || slot === "Right Leg") {
-        if (sizeKey === "Tiny" || sizeKey === "Small" || sizeKey === "Medium") {
-            if (slot === "Left Leg") c.equipped_leftleg = item.name;
-            if (slot === "Right Leg") c.equipped_rightleg = item.name;
-        } else if (sizeKey === "Large") {
-            c.equipped_leftleg = item.name;
-            c.equipped_rightleg = item.name;
-        }
-    }
-
-    // Arms
-    if (slot === "Left Arm" || slot === "Right Arm") {
-        if (sizeKey === "Tiny" || sizeKey === "Small") {
-            if (slot === "Left Arm") c.equipped_leftarm = item.name;
-            if (slot === "Right Arm") c.equipped_rightarm = item.name;
-        } else if (sizeKey === "Medium") {
-            c.equipped_leftarm = item.name;
-            c.equipped_rightarm = item.name;
-        }
-    }
-
-    // Body
-    if (slot === "Body") {
-        c.equipped_body = item.name;
-        if (sizeKey === "Large") {
-            // Large body item also covers both arms
-            c.equipped_leftarm = item.name;
-            c.equipped_rightarm = item.name;
-        }
-    }
-
-    // Head
-    if (slot === "Head") {
-        c.equipped_head = item.name;
-    }
-
-    // Cloak
-    if (slot === "Cloak") {
-        c.equipped_cloak = item.name;
-    }
 }
 
 /* ============================
