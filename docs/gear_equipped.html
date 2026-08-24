@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Equipped Gear</title>
+    <title>Gear Equipped</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
 
@@ -13,18 +13,52 @@
     <a href="profile.html">Profile</a>
     <a href="attributes.html">Attributes</a>
     <a href="inventory.html">Inventory</a>
-    <a href="gear_equipped.html">Gear</a>
     <a href="combat.html">Combat</a>
     <a href="followers.html">Followers</a>
-    <a href="home.html">Home</a>
+    <a href="gear_equipped.html">Gear Equipped</a>
     <a href="selection.html" id="closeCharacter">Close Character</a>
 </nav>
 
-<h1>Gear</h1>
-<p>Gear page coming soon.</p>
+<h1>Gear Equipped</h1>
+
+<!-- BODY LOCATION STATUS -->
+<h2>Body Location Status</h2>
+<div id="bodyStatusContainer"></div>
+
+<!-- ARMOUR LOCATION STATUS -->
+<h2>Armour Location Status</h2>
+<div id="armourStatusContainer"></div>
+
+<!-- CLOTHING LIST -->
+<h2>Clothing</h2>
+<div id="clothingContainer"></div>
+
+<!-- PURSE -->
+<h2>Purse</h2>
+<p>
+    Money: <span id="purseAmount">0</span>
+    <button id="purseMinus">-</button>
+    <button id="pursePlus">+</button>
+</p>
+
+<!-- BELT -->
+<h2>Belt</h2>
+<div id="beltContainer"></div>
+
+<!-- BACK HARNESS -->
+<h2>Back Harness</h2>
+<div id="backHarnessContainer"></div>
+
+<!-- QUIVER -->
+<h2>Quiver</h2>
+<div id="quiverContainer"></div>
+
+<!-- BACKPACK -->
+<h2>Backpack (6 × 8)</h2>
+<div id="backpackContainer"></div>
 
 <script src="js/shared.js"></script>
-<script src="js/selection.js"></script>
+<script src="js/gear_equipped.js"></script>
 
 </body>
 </html>
