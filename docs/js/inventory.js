@@ -61,6 +61,7 @@ function renderInventoryList(items) {
                 Bonus: ${item.bonusType} ${item.bonusValue}<br>
                 <button class="equipItemBtn">Equip</button>
                 <button class="editItemBtn">Edit</button>
+                <button class="duplicateItemBtn">Duplicate</button>
                 <button class="deleteItemBtn">Delete</button>
                 <div class="editPanel" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc;"></div>
             `;
@@ -71,6 +72,10 @@ function renderInventoryList(items) {
 
             li.querySelector(".editItemBtn").addEventListener("click", () => {
                 openEditPanel(item, index, li.querySelector(".editPanel"));
+            });
+
+            li.querySelector(".duplicateItemBtn").addEventListener("click", () => {
+                duplicateItem(index);
             });
 
             li.querySelector(".deleteItemBtn").addEventListener("click", () => {
@@ -215,10 +220,36 @@ function openEditPanel(item, index, panel) {
         <input type="number" id="editBonusValue" value="${item.bonusValue}">
 
         <button id="saveEditBtn">Save</button>
+        <button id="saveEquipBtn">Save & Equip</button>
+        <button id="cancelEditBtn">Cancel</button>
+        <button id="moveStorageBtn">Move to Storage</button>
+        <button id="moveBackpackBtn">Move to Backpack</button>
+        <button id="moveBeltBtn">Move to Belt</button>
     `;
 
     panel.querySelector("#saveEditBtn").addEventListener("click", () => {
         saveEditedItem(index);
+    });
+
+    panel.querySelector("#saveEquipBtn").addEventListener("click", () => {
+        saveEditedItem(index);
+        equipItem(getCharacterObject().inventory[index]);
+    });
+
+    panel.querySelector("#cancelEditBtn").addEventListener("click", () => {
+        panel.style.display = "none";
+    });
+
+    panel.querySelector("#moveStorageBtn").addEventListener("click", () => {
+        moveItemLocation(index, "Storage");
+    });
+
+    panel.querySelector("#moveBackpackBtn").addEventListener("click", () => {
+        moveItemLocation(index, "Backpack");
+    });
+
+    panel.querySelector("#moveBeltBtn").addEventListener("click", () => {
+        moveItemLocation(index, "Belt");
     });
 }
 
@@ -238,6 +269,38 @@ function saveEditedItem(index) {
 }
 
 /* ============================
+   MOVE ITEM LOCATION
+============================ */
+
+function moveItemLocation(index, newLocation) {
+    const c = getCharacterObject();
+    const item = c.inventory[index];
+
+    item.location = newLocation;
+    item.wornSlot = "";
+
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    loadInventory();
+}
+
+/* ============================
+   DUPLICATE ITEM
+============================ */
+
+function duplicateItem(index) {
+    const c = getCharacterObject();
+    const item = c.inventory[index];
+
+    const copy = JSON.parse(JSON.stringify(item));
+    copy.name = item.name + " (Copy)";
+
+    c.inventory.push(copy);
+
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    loadInventory();
+}
+
+/* ============================
    EQUIP BUTTON (unchanged)
 ============================ */
 
@@ -246,7 +309,7 @@ function equipItem(item) {
 }
 
 /* ============================
-   TREASURE
+   TREASURE SYSTEM
 ============================ */
 
 function loadTreasure() {
