@@ -408,10 +408,16 @@ function loadArmourSection() {
         const row = document.createElement("div");
         row.style.marginBottom = "8px";
 
+        const label = document.createElement("strong");
+        label.textContent = loc;
+
+        const sep = document.createTextNode(" | ");
+
         const select = document.createElement("select");
         statusOptions.forEach(opt => {
             const o = document.createElement("option");
             o.textContent = opt.label;
+            o.value = opt.label;
             if (opt.label === c.armourStatus[loc]) o.selected = true;
             select.appendChild(o);
         });
@@ -424,13 +430,24 @@ function loadArmourSection() {
             applyStatusColor(select);
         });
 
-        row.innerHTML = `<strong>${loc}</strong> | `;
+        const armourSpan = document.createElement("span");
+        armourSpan.className = "armourVal";
+        armourSpan.textContent = ` Armour: ${armourValue}`;
+
+        const toughSpan = document.createElement("span");
+        toughSpan.className = "toughVal";
+        toughSpan.textContent = ` Toughness: ${toughness}`;
+
+        const defSpan = document.createElement("span");
+        defSpan.className = "defTotal";
+        defSpan.textContent = ` Total Defence: ${totalDefence}`;
+
+        row.appendChild(label);
+        row.appendChild(sep);
         row.appendChild(select);
-        row.innerHTML += `
-            &nbsp; Armour: <span class="armourVal">${armourValue}</span>
-            &nbsp; Toughness: <span class="toughVal">${toughness}</span>
-            &nbsp; Total Defence: <span class="defTotal">${totalDefence}</span>
-        `;
+        row.appendChild(armourSpan);
+        row.appendChild(toughSpan);
+        row.appendChild(defSpan);
 
         container.appendChild(row);
     });
@@ -453,10 +470,16 @@ function loadBodyStatusSection() {
         const row = document.createElement("div");
         row.style.marginBottom = "8px";
 
+        const label = document.createElement("strong");
+        label.textContent = loc;
+
+        const sep = document.createTextNode(" | ");
+
         const select = document.createElement("select");
         statusOptions.forEach(opt => {
             const o = document.createElement("option");
             o.textContent = opt.label;
+            o.value = opt.label;
             if (opt.label === c.bodyStatus[loc]) o.selected = true;
             select.appendChild(o);
         });
@@ -469,7 +492,8 @@ function loadBodyStatusSection() {
             applyStatusColor(select);
         });
 
-        row.innerHTML = `<strong>${loc}</strong> | `;
+        row.appendChild(label);
+        row.appendChild(sep);
         row.appendChild(select);
 
         container.appendChild(row);
