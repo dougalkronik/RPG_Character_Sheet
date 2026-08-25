@@ -16,15 +16,61 @@
     <a href="gear_equipped.html">Gear</a>
     <a href="combat.html">Combat</a>
     <a href="followers.html">Followers</a>
-    <a href="home.html">Home</a>
     <a href="selection.html" id="closeCharacter">Close Character</a>
 </nav>
 
 <h1>Combat</h1>
-<p>Combat page coming soon.</p>
+
+<!-- ATTACK SECTION -->
+<h2>Attack</h2>
+<div id="attackContainer"></div>
+
+<!-- WEAPON SECTION -->
+<h2>Weapons</h2>
+<div id="weaponContainer"></div>
+
+<!-- SKILL SECTION -->
+<h2>Skills</h2>
+<div>
+    Sort by Ability:
+    <select id="skillAbilityFilter">
+        <option value="All">All</option>
+        <option value="Melee">Melee</option>
+        <option value="Ranged">Ranged</option>
+        <option value="Arcane">Arcane</option>
+        <option value="Divine">Divine</option>
+        <option value="Nature">Nature</option>
+    </select>
+    Sort by Category:
+    <select id="skillCategoryFilter">
+        <option value="All">All</option>
+        <option value="Combat">Combat</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Command">Command</option>
+        <option value="Tactical">Tactical</option>
+        <option value="Strategic">Strategic</option>
+    </select>
+</div>
+<div id="skillContainer"></div>
+
+<!-- ARMOUR SECTION -->
+<h2>Armour</h2>
+<div id="armourContainer"></div>
+
+<p>
+    <strong>Damage Table (Armour & Body):</strong><br>
+    Damage 0–4: Increase Damage by 1 (Colour)<br>
+    Damage 5–8: Increase Damage by 2 (Colour)<br>
+    Damage 9–12: Increase Damage by 3 (Colour)<br>
+    Damage 13+: Increase Damage by 4 (Colour)
+</p>
+
+<!-- BODY STATUS SECTION -->
+<h2>Body Status</h2>
+<div id="bodyStatusContainer"></div>
 
 <script src="js/shared.js"></script>
-<script src="js/selection.js"></script>
+<script src="js/combat.js"></script>
 
 </body>
 </html>
