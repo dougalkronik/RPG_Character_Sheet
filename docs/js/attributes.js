@@ -115,14 +115,62 @@ function loadSkills() {
 }
 
 function ensureBaseSkills(c) {
-    const baseSkills = [
-        { name: "Run", a1: "Strength", a2: "Stamina", ability: "Melee", category: "Adventure", div: 10 },
-        { name: "Swim", a1: "Toughness", a2: "Stamina", ability: "Melee", category: "Adventure", div: 10 },
-        { name: "Jump (High)", a1: "Strength", a2: "Agility", ability: "Melee", category: "Adventure", div: 40 },
-        { name: "Jump (Long)", a1: "Strength", a2: "Agility", ability: "Melee", category: "Adventure", div: 20 },
-        { name: "Climb", a1: "Strength", a2: "Dexterity", ability: "Melee", category: "Adventure", div: 20 },
-        { name: "Leadership", a1: "Charisma", a2: "Fellowship", ability: "Divine", category: "Command", div: 20 }
-    ];
+const baseSkills = [
+    { 
+        name: "Run", 
+        a1: "Strength", 
+        a2: "Stamina", 
+        ability: "Melee", 
+        category: "Adventure", 
+        div: 10,
+        description: "The number of minutes the character can run."
+    },
+    { 
+        name: "Swim", 
+        a1: "Toughness", 
+        a2: "Stamina", 
+        ability: "Melee", 
+        category: "Adventure", 
+        div: 10,
+        description: "The number of minutes the character can swim."
+    },
+    { 
+        name: "Jump (High)", 
+        a1: "Strength", 
+        a2: "Agility", 
+        ability: "Melee", 
+        category: "Adventure", 
+        div: 40,
+        description: "The number of meters the character can jump up or down."
+    },
+    { 
+        name: "Jump (Long)", 
+        a1: "Strength", 
+        a2: "Agility", 
+        ability: "Melee", 
+        category: "Adventure", 
+        div: 20,
+        description: "The number of meters the character can jump across or over."
+    },
+    { 
+        name: "Climb", 
+        a1: "Strength", 
+        a2: "Dexterity", 
+        ability: "Melee", 
+        category: "Adventure", 
+        div: 20,
+        description: "The number of meters a character can climb up, down, or sideways."
+    },
+    { 
+        name: "Leadership", 
+        a1: "Charisma", 
+        a2: "Fellowship", 
+        ability: "Divine", 
+        category: "Command", 
+        div: 20,
+        description: "The maximum number of followers the character can hire or bring on an adventure."
+    }
+];
 
     baseSkills.forEach(base => {
         if (!c.skills.some(s => s.name === base.name)) {
@@ -133,7 +181,8 @@ function ensureBaseSkills(c) {
                 ability: base.ability,
                 category: base.category,
                 mod: 0,
-                divisor: base.div
+                divisor: base.div,
+                description: base.description
             });
         }
     });

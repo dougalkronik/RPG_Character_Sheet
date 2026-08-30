@@ -330,10 +330,11 @@ function loadSkillSection() {
                 const bonuses = getSkillBonuses(c, skill);
 
                 const row = document.createElement("div");
-                row.style.marginBottom = "10px";
+                row.style.marginBottom = "12px";
 
                 row.innerHTML = `
                     <strong>${skill.name}</strong><br>
+                    <em>${skill.description || "No description provided."}</em><br>
                     Attribute 1: ${skill.attr1} |
                     Attribute 2: ${skill.attr2} |
                     Ability: ${skill.ability} |
