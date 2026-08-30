@@ -115,62 +115,62 @@ function loadSkills() {
 }
 
 function ensureBaseSkills(c) {
-const baseSkills = [
-    { 
-        name: "Run", 
-        a1: "Strength", 
-        a2: "Stamina", 
-        ability: "Melee", 
-        category: "Adventure", 
-        div: 10,
-        description: "The number of minutes the character can run."
-    },
-    { 
-        name: "Swim", 
-        a1: "Toughness", 
-        a2: "Stamina", 
-        ability: "Melee", 
-        category: "Adventure", 
-        div: 10,
-        description: "The number of minutes the character can swim."
-    },
-    { 
-        name: "Jump (High)", 
-        a1: "Strength", 
-        a2: "Agility", 
-        ability: "Melee", 
-        category: "Adventure", 
-        div: 40,
-        description: "The number of meters the character can jump up or down."
-    },
-    { 
-        name: "Jump (Long)", 
-        a1: "Strength", 
-        a2: "Agility", 
-        ability: "Melee", 
-        category: "Adventure", 
-        div: 20,
-        description: "The number of meters the character can jump across or over."
-    },
-    { 
-        name: "Climb", 
-        a1: "Strength", 
-        a2: "Dexterity", 
-        ability: "Melee", 
-        category: "Adventure", 
-        div: 20,
-        description: "The number of meters a character can climb up, down, or sideways."
-    },
-    { 
-        name: "Leadership", 
-        a1: "Charisma", 
-        a2: "Fellowship", 
-        ability: "Divine", 
-        category: "Command", 
-        div: 20,
-        description: "The maximum number of followers the character can hire or bring on an adventure."
-    }
-];
+    const baseSkills = [
+        { 
+            name: "Run", 
+            a1: "Strength", 
+            a2: "Stamina", 
+            ability: "Melee", 
+            category: "Adventure", 
+            div: 10,
+            description: "The number of minutes the character can run."
+        },
+        { 
+            name: "Swim", 
+            a1: "Toughness", 
+            a2: "Stamina", 
+            ability: "Melee", 
+            category: "Adventure", 
+            div: 10,
+            description: "The number of minutes the character can swim."
+        },
+        { 
+            name: "Jump (High)", 
+            a1: "Strength", 
+            a2: "Agility", 
+            ability: "Melee", 
+            category: "Adventure", 
+            div: 40,
+            description: "The number of meters the character can jump up or down."
+        },
+        { 
+            name: "Jump (Long)", 
+            a1: "Strength", 
+            a2: "Agility", 
+            ability: "Melee", 
+            category: "Adventure", 
+            div: 20,
+            description: "The number of meters the character can jump across or over."
+        },
+        { 
+            name: "Climb", 
+            a1: "Strength", 
+            a2: "Dexterity", 
+            ability: "Melee", 
+            category: "Adventure", 
+            div: 20,
+            description: "The number of meters a character can climb up, down, or sideways."
+        },
+        { 
+            name: "Leadership", 
+            a1: "Charisma", 
+            a2: "Fellowship", 
+            ability: "Divine", 
+            category: "Command", 
+            div: 20,
+            description: "The maximum number of followers the character can hire or bring on an adventure."
+        }
+    ];
 
     baseSkills.forEach(base => {
         if (!c.skills.some(s => s.name === base.name)) {
@@ -206,10 +206,8 @@ function renderSkillList(skills) {
 
             li.innerHTML = `
                 <strong>${skill.name}</strong><br>
-                <span>${skill.attr1}</span> |
-                <span>${skill.attr2}</span> |
-                <span>${skill.ability}</span> |
-                <span>${skill.category}</span><br>
+                <em>${skill.description || "No description provided."}</em><br>
+                ${skill.attr1} | ${skill.attr2} | ${skill.ability} | ${skill.category}<br>
 
                 <button class="minusSkill">-</button>
                 <span class="skillMod">${skill.mod}</span>
@@ -258,6 +256,7 @@ function setupSkillAdd() {
         const attr2 = document.getElementById("skillAttr2").value;
         const ability = document.getElementById("skillAbility").value;
         const category = document.getElementById("skillCategory").value;
+        const description = document.getElementById("skillDescription").value.trim();
 
         if (!name) {
             alert("Enter a skill name");
@@ -279,12 +278,14 @@ function setupSkillAdd() {
             ability,
             category,
             mod: 0,
-            divisor: null
+            divisor: null,
+            description
         });
 
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
         document.getElementById("skillName").value = "";
+        document.getElementById("skillDescription").value = "";
 
         renderSkillList(c.skills);
     });

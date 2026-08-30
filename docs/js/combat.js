@@ -334,7 +334,6 @@ function loadSkillSection() {
 
                 row.innerHTML = `
                     <strong>${skill.name}</strong><br>
-                    <em>${skill.description || "No description provided."}</em><br>
                     Attribute 1: ${skill.attr1} |
                     Attribute 2: ${skill.attr2} |
                     Ability: ${skill.ability} |
@@ -345,10 +344,14 @@ function loadSkillSection() {
                     <button class="sModMinus">-</button>
                     <span class="sModValue">0</span>
                     <button class="sModPlus">+</button>
-                    Total: <span class="skillTotal">${baseTotal + bonuses}</span>
+                    Total: <span class="skillTotal">${baseTotal + bonuses}</span><br>
+
+                    <em>${skill.description || "No description provided."}</em><br>
+
                     <button class="skillRollBtn">Roll 1-100</button>
                     <span class="skillResult"></span>
                 `;
+
 
                 const modMinus = row.querySelector(".sModMinus");
                 const modPlus = row.querySelector(".sModPlus");
