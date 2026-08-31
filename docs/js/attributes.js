@@ -114,6 +114,7 @@ function loadSkills() {
     renderSkillList(c.skills);
 }
 
+/* OPTION 2 — base skills always update */
 function ensureBaseSkills(c) {
     const baseSkills = [
         { 
@@ -159,7 +160,7 @@ function ensureBaseSkills(c) {
             ability: "Melee", 
             category: "Adventure", 
             div: 20,
-            description: "The number of meters a character can climb up, down, or sideways."
+            description: "The number of meters a character can climb."
         },
         { 
             name: "Leadership", 
@@ -168,12 +169,14 @@ function ensureBaseSkills(c) {
             ability: "Divine", 
             category: "Command", 
             div: 20,
-            description: "The maximum number of followers the character can hire or bring on an adventure."
+            description: "The maximum number of followers the character can hire."
         }
     ];
 
     baseSkills.forEach(base => {
-        if (!c.skills.some(s => s.name === base.name)) {
+        const existing = c.skills.find(s => s.name === base.name);
+
+        if (!existing) {
             c.skills.push({
                 name: base.name,
                 attr1: base.a1,
@@ -184,6 +187,13 @@ function ensureBaseSkills(c) {
                 divisor: base.div,
                 description: base.description
             });
+        } else {
+            existing.attr1 = base.a1;
+            existing.attr2 = base.a2;
+            existing.ability = base.ability;
+            existing.category = base.category;
+            existing.divisor = base.div;
+            existing.description = base.description;
         }
     });
 
@@ -215,7 +225,10 @@ function renderSkillList(skills) {
 
                 <span class="skillTotal">Total: ${total}</span><br>
 
-                <em>Description: ${skill.description || "No description provided."}</em>
+                <em>Description: ${skill.description || "No description provided."}</em><br><br>
+
+                <button class="editSkill">Edit</button>
+                <button class="deleteSkill">Delete</button>
             `;
 
             li.querySelector(".minusSkill").addEventListener("click", () => {
@@ -224,6 +237,14 @@ function renderSkillList(skills) {
 
             li.querySelector(".plusSkill").addEventListener("click", () => {
                 updateSkillMod(index, +1);
+            });
+
+            li.querySelector(".editSkill").addEventListener("click", () => {
+                editSkill(index);
+            });
+
+            li.querySelector(".deleteSkill").addEventListener("click", () => {
+                deleteSkill(index);
             });
 
             list.appendChild(li);
@@ -251,6 +272,10 @@ function updateSkillMod(index, delta) {
     renderSkillList(c.skills);
 }
 
+/* ============================
+   ADD / EDIT / DELETE SKILLS
+============================ */
+
 function setupSkillAdd() {
     document.getElementById("addSkillBtn").addEventListener("click", () => {
         const name = document.getElementById("skillName").value.trim();
@@ -259,6 +284,7 @@ function setupSkillAdd() {
         const ability = document.getElementById("skillAbility").value;
         const category = document.getElementById("skillCategory").value;
         const description = document.getElementById("skillDescription").value.trim();
+        const divisorInput = Number(document.getElementById("skillDivisor").value);
 
         if (!name) {
             alert("Enter a skill name");
@@ -270,6 +296,8 @@ function setupSkillAdd() {
             return;
         }
 
+        const divisor = divisorInput > 0 ? divisorInput : null;
+
         const c = getCharacterObject();
         if (!c.skills) c.skills = [];
 
@@ -280,7 +308,7 @@ function setupSkillAdd() {
             ability,
             category,
             mod: 0,
-            divisor: null,
+            divisor,
             description
         });
 
@@ -288,9 +316,35 @@ function setupSkillAdd() {
 
         document.getElementById("skillName").value = "";
         document.getElementById("skillDescription").value = "";
+        document.getElementById("skillDivisor").value = 0;
 
         renderSkillList(c.skills);
     });
+}
+
+function editSkill(index) {
+    const c = getCharacterObject();
+    const s = c.skills[index];
+
+    document.getElementById("skillName").value = s.name;
+    document.getElementById("skillAttr1").value = s.attr1;
+    document.getElementById("skillAttr2").value = s.attr2;
+    document.getElementById("skillAbility").value = s.ability;
+    document.getElementById("skillCategory").value = s.category;
+    document.getElementById("skillDescription").value = s.description;
+    document.getElementById("skillDivisor").value = s.divisor || 0;
+
+    c.skills.splice(index, 1);
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+
+    renderSkillList(c.skills);
+}
+
+function deleteSkill(index) {
+    const c = getCharacterObject();
+    c.skills.splice(index, 1);
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    renderSkillList(c.skills);
 }
 
 function setupSkillSort() {
