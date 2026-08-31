@@ -206,14 +206,16 @@ function renderSkillList(skills) {
 
             li.innerHTML = `
                 <strong>${skill.name}</strong><br>
-                <em>${skill.description || "No description provided."}</em><br>
+
                 ${skill.attr1} | ${skill.attr2} | ${skill.ability} | ${skill.category}<br>
 
                 <button class="minusSkill">-</button>
                 <span class="skillMod">${skill.mod}</span>
-                <button class="plusSkill">+</button>
+                <button class="plusSkill">+</button><br>
 
-                <span class="skillTotal">Total: ${total}</span>
+                <span class="skillTotal">Total: ${total}</span><br>
+
+                <em>Description: ${skill.description || "No description provided."}</em>
             `;
 
             li.querySelector(".minusSkill").addEventListener("click", () => {
