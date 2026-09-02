@@ -18,32 +18,43 @@ function setupWornSlotToggle() {
     const wornSlot = document.getElementById("wornSlot");
 
     loc.addEventListener("change", () => {
-        if (loc.value === "Worn") {
-            wornSlot.disabled = false;
-        } else {
-            wornSlot.disabled = true;
-            wornSlot.value = "Head";
-        }
+        wornSlot.disabled = (loc.value !== "Worn");
+        if (loc.value !== "Worn") wornSlot.value = "Head";
     });
 }
 
 /* ============================
-   DYNAMIC FIELD VISIBILITY
+   DYNAMIC FIELD ENABLE/DISABLE
 ============================ */
 
 function setupDynamicItemFields() {
     const type = document.getElementById("itemType");
 
-    const weaponCategoryContainer = document.getElementById("weaponCategoryContainer");
-    const ammoFields = document.getElementById("ammoFields");
-    const storageFields = document.getElementById("storageFields");
+    const weaponCategory = document.getElementById("weaponCategory");
+    const ammoElementName = document.getElementById("ammoElementName");
+    const ammoCapacity = document.getElementById("ammoCapacity");
+    const ammoQuantity = document.getElementById("ammoQuantity");
+    const storageSlots = document.getElementById("itemSlots");
 
     type.addEventListener("change", () => {
         const t = type.value;
 
-        weaponCategoryContainer.style.display = (t === "Weapon") ? "block" : "none";
-        ammoFields.style.display = (t === "Ammunition") ? "block" : "none";
-        storageFields.style.display = (t === "Storage") ? "block" : "none";
+        weaponCategory.disabled = (t !== "Weapon");
+        if (t !== "Weapon") weaponCategory.value = "Melee";
+
+        const isAmmo = (t === "Ammunition");
+        ammoElementName.disabled = !isAmmo;
+        ammoCapacity.disabled = !isAmmo;
+        ammoQuantity.disabled = !isAmmo;
+
+        if (!isAmmo) {
+            ammoElementName.value = "";
+            ammoCapacity.value = 0;
+            ammoQuantity.value = 1;
+        }
+
+        storageSlots.disabled = (t !== "Storage");
+        if (t !== "Storage") storageSlots.value = 1;
     });
 }
 
@@ -176,6 +187,10 @@ function setupItemAdd() {
     });
 }
 
+/* ============================
+   DELETE / DUPLICATE / EQUIP
+============================ */
+
 function deleteInventoryItem(index) {
     const c = getCharacterObject();
     c.inventory.splice(index, 1);
@@ -183,13 +198,18 @@ function deleteInventoryItem(index) {
     loadInventory();
 }
 
-function setupInventoryFilters() {
-    ["filterType", "filterLocation", "filterBonus"].forEach(id => {
-        document.getElementById(id).addEventListener("change", () => {
-            const c = getCharacterObject();
-            renderInventoryList(c.inventory || []);
-        });
-    });
+function duplicateItem(index) {
+    const c = getCharacterObject();
+    const item = c.inventory[index];
+    const copy = JSON.parse(JSON.stringify(item));
+    copy.name = item.name + " (Copy)";
+    c.inventory.push(copy);
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    loadInventory();
+}
+
+function equipItem(item) {
+    alert(item.name + " equipped.");
 }
 
 /* ============================
@@ -370,31 +390,6 @@ function moveItemLocation(index, newLocation) {
 
     localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     loadInventory();
-}
-
-/* ============================
-   DUPLICATE ITEM
-============================ */
-
-function duplicateItem(index) {
-    const c = getCharacterObject();
-    const item = c.inventory[index];
-
-    const copy = JSON.parse(JSON.stringify(item));
-    copy.name = item.name + " (Copy)";
-
-    c.inventory.push(copy);
-
-    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-    loadInventory();
-}
-
-/* ============================
-   EQUIP BUTTON
-============================ */
-
-function equipItem(item) {
-    alert(item.name + " equipped.");
 }
 
 /* ============================
