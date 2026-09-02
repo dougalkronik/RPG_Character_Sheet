@@ -291,6 +291,46 @@ function equipItem(item) {
 
 /* EDIT PANEL */
 
+function populateEditAmmoUsed(selectElement, currentValue) {
+    const c = getCharacterObject();
+    selectElement.innerHTML = "";
+
+    const ammoList = c.inventory.filter(i => i.type === "Ammunition");
+
+    if (ammoList.length === 0) {
+        selectElement.innerHTML = "<option>None</option>";
+        return;
+    }
+
+    ammoList.forEach(ammo => {
+        const opt = document.createElement("option");
+        opt.textContent = ammo.name;
+        if (ammo.name === currentValue) opt.selected = true;
+        selectElement.appendChild(opt);
+    });
+}
+
+function populateEditWeaponUsedBy(selectElement, currentValue) {
+    const c = getCharacterObject();
+    selectElement.innerHTML = "";
+
+    const rangedWeapons = c.inventory.filter(i =>
+        i.type === "Weapon" && i.weaponCategory === "Ranged"
+    );
+
+    if (rangedWeapons.length === 0) {
+        selectElement.innerHTML = "<option>None</option>";
+        return;
+    }
+
+    rangedWeapons.forEach(w => {
+        const opt = document.createElement("option");
+        opt.textContent = w.name;
+        if (w.name === currentValue) opt.selected = true;
+        selectElement.appendChild(opt);
+    });
+}
+
 function openEditPanel(item, index, panel) {
     panel.style.display = "block";
 
@@ -372,19 +412,13 @@ function openEditPanel(item, index, panel) {
                 <option>Nature</option>
             </select>
 
-            ${item.weaponCategory === "Ranged" ? `
-                <label>Ammunition Used</label>
-                <select id="editAmmoUsed">
-                    <option>${item.ammoUsed}</option>
-                </select>
-            ` : ""}
+            <label>Ammunition Used</label>
+            <select id="editAmmoUsed"></select>
         ` : ""}
 
         ${item.type === "Ammunition" ? `
             <label>Weapon Used By</label>
-            <select id="editWeaponUsedBy">
-                <option>${item.weaponUsedBy}</option>
-            </select>
+            <select id="editWeaponUsedBy"></select>
 
             <label>Element Name</label>
             <input type="text" id="editElementName" value="${item.elementName}">
@@ -408,6 +442,16 @@ function openEditPanel(item, index, panel) {
         <button id="moveBackpackBtn">Move to Backpack</button>
         <button id="moveBeltBtn">Move to Belt</button>
     `;
+
+    if (item.type === "Weapon") {
+        const sel = panel.querySelector("#editAmmoUsed");
+        populateEditAmmoUsed(sel, item.ammoUsed);
+    }
+    
+    if (item.type === "Ammunition") {
+        const sel = panel.querySelector("#editWeaponUsedBy");
+        populateEditWeaponUsedBy(sel, item.weaponUsedBy);
+    }
 
     panel.querySelector("#saveEditBtn").addEventListener("click", () => {
         saveEditedItem(index);
