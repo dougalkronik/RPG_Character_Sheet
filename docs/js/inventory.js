@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     requireCharacter();
     setupWornSlotToggle();
+    setupDynamicItemFields();
     loadInventory();
     loadTreasure();
     setupItemAdd();
@@ -21,8 +22,28 @@ function setupWornSlotToggle() {
             wornSlot.disabled = false;
         } else {
             wornSlot.disabled = true;
-            wornSlot.value = "Head"; // reset default
+            wornSlot.value = "Head";
         }
+    });
+}
+
+/* ============================
+   DYNAMIC FIELD VISIBILITY
+============================ */
+
+function setupDynamicItemFields() {
+    const type = document.getElementById("itemType");
+
+    const weaponCategoryContainer = document.getElementById("weaponCategoryContainer");
+    const ammoFields = document.getElementById("ammoFields");
+    const storageFields = document.getElementById("storageFields");
+
+    type.addEventListener("change", () => {
+        const t = type.value;
+
+        weaponCategoryContainer.style.display = (t === "Weapon") ? "block" : "none";
+        ammoFields.style.display = (t === "Ammunition") ? "block" : "none";
+        storageFields.style.display = (t === "Storage") ? "block" : "none";
     });
 }
 
@@ -59,10 +80,20 @@ function renderInventoryList(items) {
                 Location: ${item.location}${item.location === "Worn" && item.wornSlot ? " (" + item.wornSlot + ")" : ""} |
                 Qty: ${item.quantity} |
                 Bonus: ${item.bonusType} ${item.bonusValue}<br>
+
+                ${item.type === "Weapon" ? `Category: ${item.weaponCategory}<br>` : ""}
+                ${item.type === "Ammunition" ? `
+                    Element: ${item.elementName} |
+                    Capacity: ${item.capacity} |
+                    Quantity: ${item.ammoQuantity}<br>
+                ` : ""}
+                ${item.type === "Storage" ? `Slots: ${item.slots}<br>` : ""}
+
                 <button class="equipItemBtn">Equip</button>
                 <button class="editItemBtn">Edit</button>
                 <button class="duplicateItemBtn">Duplicate</button>
                 <button class="deleteItemBtn">Delete</button>
+
                 <div class="editPanel" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc;"></div>
             `;
 
@@ -86,6 +117,10 @@ function renderInventoryList(items) {
         });
 }
 
+/* ============================
+   ADD ITEM
+============================ */
+
 function setupItemAdd() {
     document.getElementById("addItemBtn").addEventListener("click", () => {
         const name = document.getElementById("itemName").value.trim();
@@ -97,6 +132,11 @@ function setupItemAdd() {
         const quantity = Number(document.getElementById("itemQuantity").value);
         const bonusType = document.getElementById("itemBonusType").value;
         const bonusValue = Number(document.getElementById("itemBonusValue").value);
+
+        const weaponCategory = document.getElementById("weaponCategory").value;
+        const elementName = document.getElementById("ammoElementName").value;
+        const capacity = Number(document.getElementById("ammoCapacity").value);
+        const ammoQuantity = Number(document.getElementById("ammoQuantity").value);
         const slots = Number(document.getElementById("itemSlots").value);
 
         if (!name) {
@@ -117,7 +157,13 @@ function setupItemAdd() {
             quantity,
             bonusType,
             bonusValue,
-            slots
+
+            slots: type === "Storage" ? slots : 0,
+
+            weaponCategory: type === "Weapon" ? weaponCategory : "",
+            elementName: type === "Ammunition" ? elementName : "",
+            capacity: type === "Ammunition" ? capacity : 0,
+            ammoQuantity: type === "Ammunition" ? ammoQuantity : 0
         };
 
         c.inventory.push(item);
@@ -198,6 +244,7 @@ function openEditPanel(item, index, panel) {
             <option>Left Leg</option>
             <option>Right Leg</option>
             <option>Cloak</option>
+            <option>Vest</option>
         </select>
 
         <label>Bonus Type</label>
@@ -218,6 +265,34 @@ function openEditPanel(item, index, panel) {
 
         <label>Bonus Value</label>
         <input type="number" id="editBonusValue" value="${item.bonusValue}">
+
+        ${item.type === "Weapon" ? `
+            <label>Weapon Category</label>
+            <select id="editWeaponCategory">
+                <option>${item.weaponCategory}</option>
+                <option>Melee</option>
+                <option>Ranged</option>
+                <option>Arcane</option>
+                <option>Divine</option>
+                <option>Nature</option>
+            </select>
+        ` : ""}
+
+        ${item.type === "Ammunition" ? `
+            <label>Element Name</label>
+            <input type="text" id="editElementName" value="${item.elementName}">
+
+            <label>Capacity</label>
+            <input type="number" id="editCapacity" value="${item.capacity}">
+
+            <label>Quantity</label>
+            <input type="number" id="editAmmoQuantity" value="${item.ammoQuantity}">
+        ` : ""}
+
+        ${item.type === "Storage" ? `
+            <label>Slots</label>
+            <input type="number" id="editSlots" value="${item.slots}">
+        ` : ""}
 
         <button id="saveEditBtn">Save</button>
         <button id="saveEquipBtn">Save & Equip</button>
@@ -264,6 +339,20 @@ function saveEditedItem(index) {
     item.bonusType = document.getElementById("editBonusType").value;
     item.bonusValue = Number(document.getElementById("editBonusValue").value);
 
+    if (item.type === "Weapon") {
+        item.weaponCategory = document.getElementById("editWeaponCategory").value;
+    }
+
+    if (item.type === "Ammunition") {
+        item.elementName = document.getElementById("editElementName").value;
+        item.capacity = Number(document.getElementById("editCapacity").value);
+        item.ammoQuantity = Number(document.getElementById("editAmmoQuantity").value);
+    }
+
+    if (item.type === "Storage") {
+        item.slots = Number(document.getElementById("editSlots").value);
+    }
+
     localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     loadInventory();
 }
@@ -301,7 +390,7 @@ function duplicateItem(index) {
 }
 
 /* ============================
-   EQUIP BUTTON (unchanged)
+   EQUIP BUTTON
 ============================ */
 
 function equipItem(item) {
