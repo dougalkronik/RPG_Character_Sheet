@@ -1,31 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
     requireCharacter();
-    setupWornSlotToggle();
-    setupDynamicItemFields();
     loadInventory();
     loadTreasure();
+    setupWornSlotToggle();
+    setupDynamicItemFields();
     setupItemAdd();
     setupTreasureAdd();
     setupInventoryFilters();
 });
 
-/* ============================
-   WORN SLOT ENABLE/DISABLE
-============================ */
+/* WORN SLOT TOGGLE */
 
 function setupWornSlotToggle() {
     const loc = document.getElementById("itemLocation");
     const wornSlot = document.getElementById("wornSlot");
 
     loc.addEventListener("change", () => {
-        wornSlot.disabled = (loc.value !== "Worn");
-        if (loc.value !== "Worn") wornSlot.value = "Head";
+        const isWorn = (loc.value === "Worn");
+        wornSlot.disabled = !isWorn;
+        if (!isWorn) wornSlot.value = "Head";
     });
 }
 
-/* ============================
-   DYNAMIC FIELD ENABLE/DISABLE
-============================ */
+/* DYNAMIC FIELDS */
 
 function setupDynamicItemFields() {
     const type = document.getElementById("itemType");
@@ -40,74 +37,75 @@ function setupDynamicItemFields() {
 
     const storageSlots = document.getElementById("itemSlots");
 
+    // Always start weaponCategory at first option (Melee)
+    weaponCategory.value = weaponCategory.options[0].value;
+
+    function populateAmmoUsed() {
+        const c = getCharacterObject();
+        ammoUsed.innerHTML = "";
+
+        const ammoList = (c && c.inventory ? c.inventory : []).filter(i => i.type === "Ammunition");
+
+        if (ammoList.length === 0) {
+            ammoUsed.innerHTML = "<option>None</option>";
+            return;
+        }
+
+        ammoList.forEach(ammo => {
+            const opt = document.createElement("option");
+            opt.textContent = ammo.name;
+            ammoUsed.appendChild(opt);
+        });
+    }
+
+    function populateWeaponUsedBy() {
+        const c = getCharacterObject();
+        weaponUsedBy.innerHTML = "";
+
+        const rangedWeapons = (c && c.inventory ? c.inventory : []).filter(i =>
+            i.type === "Weapon" && i.weaponCategory === "Ranged"
+        );
+
+        if (rangedWeapons.length === 0) {
+            weaponUsedBy.innerHTML = "<option>None</option>";
+            return;
+        }
+
+        rangedWeapons.forEach(w => {
+            const opt = document.createElement("option");
+            opt.textContent = w.name;
+            weaponUsedBy.appendChild(opt);
+        });
+    }
+
     function updateFields() {
         const t = type.value;
 
-        /* -------------------------
-           WEAPON CATEGORY
-        ------------------------- */
+        // Weapon Category
         weaponCategory.disabled = (t !== "Weapon");
-        if (t !== "Weapon") weaponCategory.value = "Melee";
+        if (t !== "Weapon") {
+            weaponCategory.value = weaponCategory.options[0].value;
+        }
 
-        /* -------------------------
-           AMMUNITION USED (for ranged weapons)
-        ------------------------- */
+        // Ammunition Used (for ranged weapons)
         if (t === "Weapon" && weaponCategory.value === "Ranged") {
             ammoUsed.disabled = false;
-
-            const c = getCharacterObject();
-            ammoUsed.innerHTML = "";
-
-            c.inventory
-                .filter(i => i.type === "Ammunition")
-                .forEach(ammo => {
-                    const opt = document.createElement("option");
-                    opt.textContent = ammo.name;
-                    ammoUsed.appendChild(opt);
-                });
-
-            if (ammoUsed.options.length === 0) {
-                const opt = document.createElement("option");
-                opt.textContent = "None";
-                ammoUsed.appendChild(opt);
-            }
-
+            populateAmmoUsed();
         } else {
             ammoUsed.disabled = true;
             ammoUsed.innerHTML = "<option>None</option>";
         }
 
-        /* -------------------------
-           WEAPON USED BY (for ammunition items)
-        ------------------------- */
+        // Weapon Used By (for ammunition items)
         if (t === "Ammunition") {
             weaponUsedBy.disabled = false;
-
-            const c = getCharacterObject();
-            weaponUsedBy.innerHTML = "";
-
-            c.inventory
-                .filter(i => i.type === "Weapon" && i.weaponCategory === "Ranged")
-                .forEach(weapon => {
-                    const opt = document.createElement("option");
-                    opt.textContent = weapon.name;
-                    weaponUsedBy.appendChild(opt);
-                });
-
-            if (weaponUsedBy.options.length === 0) {
-                const opt = document.createElement("option");
-                opt.textContent = "None";
-                weaponUsedBy.appendChild(opt);
-            }
-
+            populateWeaponUsedBy();
         } else {
             weaponUsedBy.disabled = true;
             weaponUsedBy.innerHTML = "<option>None</option>";
         }
 
-        /* -------------------------
-           AMMUNITION FIELDS
-        ------------------------- */
+        // Ammunition fields
         const isAmmo = (t === "Ammunition");
 
         ammoElementName.disabled = !isAmmo;
@@ -120,21 +118,19 @@ function setupDynamicItemFields() {
             ammoQuantity.value = 1;
         }
 
-        /* -------------------------
-           STORAGE SLOTS
-        ------------------------- */
-        storageSlots.disabled = (t !== "Storage");
-        if (t !== "Storage") storageSlots.value = 1;
+        // Storage slots
+        const isStorage = (t === "Storage");
+        storageSlots.disabled = !isStorage;
+        if (!isStorage) storageSlots.value = 1;
     }
 
     updateFields();
+
     type.addEventListener("change", updateFields);
     weaponCategory.addEventListener("change", updateFields);
 }
 
-/* ============================
-   INVENTORY LOAD & RENDER
-============================ */
+/* INVENTORY LOAD & RENDER */
 
 function loadInventory() {
     const c = getCharacterObject();
@@ -206,13 +202,10 @@ function renderInventoryList(items) {
         });
 }
 
-/* ============================
-   ADD ITEM
-============================ */
+/* ADD ITEM */
 
 function setupItemAdd() {
     document.getElementById("addItemBtn").addEventListener("click", () => {
-
         const name = document.getElementById("itemName").value.trim();
         const type = document.getElementById("itemType").value;
         const location = document.getElementById("itemLocation").value;
@@ -266,18 +259,14 @@ function setupItemAdd() {
         };
 
         c.inventory.push(item);
-
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
         document.getElementById("itemName").value = "";
-
         loadInventory();
     });
 }
 
-/* ============================
-   DELETE / DUPLICATE / EQUIP
-============================ */
+/* DELETE / DUPLICATE / EQUIP */
 
 function deleteInventoryItem(index) {
     const c = getCharacterObject();
@@ -300,9 +289,7 @@ function equipItem(item) {
     alert(item.name + " equipped.");
 }
 
-/* ============================
-   EDIT PANEL
-============================ */
+/* EDIT PANEL */
 
 function openEditPanel(item, index, panel) {
     panel.style.display = "block";
@@ -484,9 +471,7 @@ function saveEditedItem(index) {
     loadInventory();
 }
 
-/* ============================
-   MOVE ITEM LOCATION
-============================ */
+/* MOVE ITEM LOCATION */
 
 function moveItemLocation(index, newLocation) {
     const c = getCharacterObject();
@@ -499,9 +484,21 @@ function moveItemLocation(index, newLocation) {
     loadInventory();
 }
 
-/* ============================
-   TREASURE SYSTEM
-============================ */
+/* INVENTORY FILTERS */
+
+function setupInventoryFilters() {
+    const typeFilter = document.getElementById("filterType");
+    const locFilter = document.getElementById("filterLocation");
+    const bonusFilter = document.getElementById("filterBonus");
+
+    [typeFilter, locFilter, bonusFilter].forEach(sel => {
+        sel.addEventListener("change", () => {
+            loadInventory();
+        });
+    });
+}
+
+/* TREASURE SYSTEM */
 
 function loadTreasure() {
     const c = getCharacterObject();
@@ -524,79 +521,25 @@ function renderTreasureList(treasure) {
     list.innerHTML = "";
 
     let totalAssets = 0;
-    const c = getCharacterObject();
 
     treasure.forEach((t, index) => {
         const total = t.value * t.quantity;
         totalAssets += total;
 
         const li = document.createElement("li");
-
         li.innerHTML = `
-            <strong>${t.name}</strong><br>
-            Value:
-            <button class="valueMinus">-</button>
-            <span class="valueDisplay">${t.value}</span>
-            <button class="valuePlus">+</button>
-            &nbsp;|&nbsp;
-            Qty:
-            <button class="qtyMinus">-</button>
-            <span class="qtyDisplay">${t.quantity}</span>
-            <button class="qtyPlus">+</button>
-            &nbsp;|&nbsp;
-            Total: ${total}
-            ${t.name === "Money" ? "" : '<br><button class="deleteTreasureBtn">Delete</button>'}
+            <strong>${t.name}</strong> — Value: ${t.value}, Qty: ${t.quantity}, Total: ${total}
+            <button class="deleteTreasureBtn">Delete</button>
         `;
 
-        li.querySelector(".valueMinus").addEventListener("click", () => {
-            const item = c.treasure[index];
-            if (item.value > 0) item.value -= 1;
-            saveTreasureAndRefresh(c);
+        li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
+            deleteTreasureItem(index);
         });
-
-        li.querySelector(".valuePlus").addEventListener("click", () => {
-            const item = c.treasure[index];
-            item.value += 1;
-            saveTreasureAndRefresh(c);
-        });
-
-        li.querySelector(".qtyMinus").addEventListener("click", () => {
-            const item = c.treasure[index];
-
-            if (item.name === "Money") {
-                if (item.quantity > 0) item.quantity -= 1;
-            } else {
-                item.quantity -= 1;
-                if (item.quantity < 1) {
-                    c.treasure.splice(index, 1);
-                }
-            }
-
-            saveTreasureAndRefresh(c);
-        });
-
-        li.querySelector(".qtyPlus").addEventListener("click", () => {
-            const item = c.treasure[index];
-            item.quantity += 1;
-            saveTreasureAndRefresh(c);
-        });
-
-        if (t.name !== "Money") {
-            li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
-                c.treasure.splice(index, 1);
-                saveTreasureAndRefresh(c);
-            });
-        }
 
         list.appendChild(li);
     });
 
     document.getElementById("totalAssets").textContent = totalAssets;
-}
-
-function saveTreasureAndRefresh(c) {
-    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
-    renderTreasureList(c.treasure);
 }
 
 function setupTreasureAdd() {
@@ -613,16 +556,17 @@ function setupTreasureAdd() {
         const c = getCharacterObject();
         if (!c.treasure) c.treasure = [];
 
-        c.treasure.push({
-            name,
-            value,
-            quantity
-        });
-
+        c.treasure.push({ name, value, quantity });
         localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
 
         document.getElementById("treasureName").value = "";
-
-        renderTreasureList(c.treasure);
+        loadTreasure();
     });
+}
+
+function deleteTreasureItem(index) {
+    const c = getCharacterObject();
+    c.treasure.splice(index, 1);
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+    loadTreasure();
 }
