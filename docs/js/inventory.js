@@ -24,27 +24,92 @@ function setupWornSlotToggle() {
 }
 
 /* ============================
-   DYNAMIC FIELD ENABLE/DISABLE (FIXED)
+   DYNAMIC FIELD ENABLE/DISABLE
 ============================ */
 
 function setupDynamicItemFields() {
     const type = document.getElementById("itemType");
 
     const weaponCategory = document.getElementById("weaponCategory");
+    const ammoUsed = document.getElementById("ammoUsed");
+    const weaponUsedBy = document.getElementById("weaponUsedBy");
+
     const ammoElementName = document.getElementById("ammoElementName");
     const ammoCapacity = document.getElementById("ammoCapacity");
     const ammoQuantity = document.getElementById("ammoQuantity");
+
     const storageSlots = document.getElementById("itemSlots");
 
     function updateFields() {
         const t = type.value;
 
-        // WEAPON
+        /* -------------------------
+           WEAPON CATEGORY
+        ------------------------- */
         weaponCategory.disabled = (t !== "Weapon");
         if (t !== "Weapon") weaponCategory.value = "Melee";
 
-        // AMMUNITION
+        /* -------------------------
+           AMMUNITION USED (for ranged weapons)
+        ------------------------- */
+        if (t === "Weapon" && weaponCategory.value === "Ranged") {
+            ammoUsed.disabled = false;
+
+            const c = getCharacterObject();
+            ammoUsed.innerHTML = "";
+
+            c.inventory
+                .filter(i => i.type === "Ammunition")
+                .forEach(ammo => {
+                    const opt = document.createElement("option");
+                    opt.textContent = ammo.name;
+                    ammoUsed.appendChild(opt);
+                });
+
+            if (ammoUsed.options.length === 0) {
+                const opt = document.createElement("option");
+                opt.textContent = "None";
+                ammoUsed.appendChild(opt);
+            }
+
+        } else {
+            ammoUsed.disabled = true;
+            ammoUsed.innerHTML = "<option>None</option>";
+        }
+
+        /* -------------------------
+           WEAPON USED BY (for ammunition items)
+        ------------------------- */
+        if (t === "Ammunition") {
+            weaponUsedBy.disabled = false;
+
+            const c = getCharacterObject();
+            weaponUsedBy.innerHTML = "";
+
+            c.inventory
+                .filter(i => i.type === "Weapon" && i.weaponCategory === "Ranged")
+                .forEach(weapon => {
+                    const opt = document.createElement("option");
+                    opt.textContent = weapon.name;
+                    weaponUsedBy.appendChild(opt);
+                });
+
+            if (weaponUsedBy.options.length === 0) {
+                const opt = document.createElement("option");
+                opt.textContent = "None";
+                weaponUsedBy.appendChild(opt);
+            }
+
+        } else {
+            weaponUsedBy.disabled = true;
+            weaponUsedBy.innerHTML = "<option>None</option>";
+        }
+
+        /* -------------------------
+           AMMUNITION FIELDS
+        ------------------------- */
         const isAmmo = (t === "Ammunition");
+
         ammoElementName.disabled = !isAmmo;
         ammoCapacity.disabled = !isAmmo;
         ammoQuantity.disabled = !isAmmo;
@@ -55,17 +120,20 @@ function setupDynamicItemFields() {
             ammoQuantity.value = 1;
         }
 
-        // STORAGE
+        /* -------------------------
+           STORAGE SLOTS
+        ------------------------- */
         storageSlots.disabled = (t !== "Storage");
         if (t !== "Storage") storageSlots.value = 1;
     }
 
-    updateFields();                // Run immediately
-    type.addEventListener("change", updateFields);   // Run on change
+    updateFields();
+    type.addEventListener("change", updateFields);
+    weaponCategory.addEventListener("change", updateFields);
 }
 
 /* ============================
-   INVENTORY
+   INVENTORY LOAD & RENDER
 ============================ */
 
 function loadInventory() {
@@ -99,11 +167,15 @@ function renderInventoryList(items) {
                 Bonus: ${item.bonusType} ${item.bonusValue}<br>
 
                 ${item.type === "Weapon" ? `Category: ${item.weaponCategory}<br>` : ""}
+                ${item.ammoUsed ? `Ammo Used: ${item.ammoUsed}<br>` : ""}
+                ${item.weaponUsedBy ? `Used By: ${item.weaponUsedBy}<br>` : ""}
+
                 ${item.type === "Ammunition" ? `
                     Element: ${item.elementName} |
                     Capacity: ${item.capacity} |
                     Quantity: ${item.ammoQuantity}<br>
                 ` : ""}
+
                 ${item.type === "Storage" ? `Slots: ${item.slots}<br>` : ""}
 
                 <button class="equipItemBtn">Equip</button>
@@ -140,20 +212,27 @@ function renderInventoryList(items) {
 
 function setupItemAdd() {
     document.getElementById("addItemBtn").addEventListener("click", () => {
+
         const name = document.getElementById("itemName").value.trim();
         const type = document.getElementById("itemType").value;
         const location = document.getElementById("itemLocation").value;
         const wornSlot = document.getElementById("wornSlot").disabled ? "" : document.getElementById("wornSlot").value;
+
         const size = document.getElementById("itemSize").value;
         const stackable = document.getElementById("itemStackable").checked;
         const quantity = Number(document.getElementById("itemQuantity").value);
+
         const bonusType = document.getElementById("itemBonusType").value;
         const bonusValue = Number(document.getElementById("itemBonusValue").value);
 
         const weaponCategory = document.getElementById("weaponCategory").value;
+        const ammoUsedValue = document.getElementById("ammoUsed").value;
+        const weaponUsedByValue = document.getElementById("weaponUsedBy").value;
+
         const elementName = document.getElementById("ammoElementName").value;
         const capacity = Number(document.getElementById("ammoCapacity").value);
         const ammoQuantity = Number(document.getElementById("ammoQuantity").value);
+
         const slots = Number(document.getElementById("itemSlots").value);
 
         if (!name) {
@@ -178,6 +257,9 @@ function setupItemAdd() {
             slots: type === "Storage" ? slots : 0,
 
             weaponCategory: type === "Weapon" ? weaponCategory : "",
+            ammoUsed: (type === "Weapon" && weaponCategory === "Ranged") ? ammoUsedValue : "",
+            weaponUsedBy: (type === "Ammunition") ? weaponUsedByValue : "",
+
             elementName: type === "Ammunition" ? elementName : "",
             capacity: type === "Ammunition" ? capacity : 0,
             ammoQuantity: type === "Ammunition" ? ammoQuantity : 0
@@ -302,9 +384,21 @@ function openEditPanel(item, index, panel) {
                 <option>Divine</option>
                 <option>Nature</option>
             </select>
+
+            ${item.weaponCategory === "Ranged" ? `
+                <label>Ammunition Used</label>
+                <select id="editAmmoUsed">
+                    <option>${item.ammoUsed}</option>
+                </select>
+            ` : ""}
         ` : ""}
 
         ${item.type === "Ammunition" ? `
+            <label>Weapon Used By</label>
+            <select id="editWeaponUsedBy">
+                <option>${item.weaponUsedBy}</option>
+            </select>
+
             <label>Element Name</label>
             <input type="text" id="editElementName" value="${item.elementName}">
 
@@ -367,9 +461,16 @@ function saveEditedItem(index) {
 
     if (item.type === "Weapon") {
         item.weaponCategory = document.getElementById("editWeaponCategory").value;
+
+        if (item.weaponCategory === "Ranged") {
+            item.ammoUsed = document.getElementById("editAmmoUsed").value;
+        } else {
+            item.ammoUsed = "";
+        }
     }
 
     if (item.type === "Ammunition") {
+        item.weaponUsedBy = document.getElementById("editWeaponUsedBy").value;
         item.elementName = document.getElementById("editElementName").value;
         item.capacity = Number(document.getElementById("editCapacity").value);
         item.ammoQuantity = Number(document.getElementById("editAmmoQuantity").value);
