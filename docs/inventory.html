@@ -67,6 +67,7 @@
     <option>Left Leg</option>
     <option>Right Leg</option>
     <option>Cloak</option>
+    <option>Vest</option>
 </select>
 
 <label>Size of Item</label>
@@ -105,8 +106,35 @@
 <label>Bonus Value</label>
 <input type="number" id="itemBonusValue" value="0">
 
-<label>Storage Slots (only for Storage items)</label>
-<input type="number" id="itemSlots" value="1" min="1">
+<!-- WEAPON CATEGORY (only for Weapon items) -->
+<div id="weaponCategoryContainer" style="display:none;">
+    <label>Weapon Category</label>
+    <select id="weaponCategory">
+        <option>Melee</option>
+        <option>Ranged</option>
+        <option>Arcane</option>
+        <option>Divine</option>
+        <option>Nature</option>
+    </select>
+</div>
+
+<!-- AMMUNITION ELEMENT FIELDS -->
+<div id="ammoFields" style="display:none;">
+    <label>Ammunition Element Name</label>
+    <input type="text" id="ammoElementName">
+
+    <label>Capacity</label>
+    <input type="number" id="ammoCapacity" value="0">
+
+    <label>Quantity</label>
+    <input type="number" id="ammoQuantity" value="1" min="1">
+</div>
+
+<!-- STORAGE ITEM FIELDS -->
+<div id="storageFields" style="display:none;">
+    <label>Storage Slots</label>
+    <input type="number" id="itemSlots" value="1" min="1">
+</div>
 
 <button id="addItemBtn">Add Item</button>
 
@@ -141,7 +169,7 @@
     Bonus:
     <select id="filterBonus">
         <option value="All">All</option>
-        <option >Armour</option>
+        <option>Armour</option>
         <option>Damage</option>
         <option>Melee Attack</option>
         <option>Ranged Attack</option>
