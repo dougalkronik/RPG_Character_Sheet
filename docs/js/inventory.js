@@ -24,7 +24,7 @@ function setupWornSlotToggle() {
 }
 
 /* ============================
-   DYNAMIC FIELD ENABLE/DISABLE
+   DYNAMIC FIELD ENABLE/DISABLE (FIXED)
 ============================ */
 
 function setupDynamicItemFields() {
@@ -36,12 +36,14 @@ function setupDynamicItemFields() {
     const ammoQuantity = document.getElementById("ammoQuantity");
     const storageSlots = document.getElementById("itemSlots");
 
-    type.addEventListener("change", () => {
+    function updateFields() {
         const t = type.value;
 
+        // WEAPON
         weaponCategory.disabled = (t !== "Weapon");
         if (t !== "Weapon") weaponCategory.value = "Melee";
 
+        // AMMUNITION
         const isAmmo = (t === "Ammunition");
         ammoElementName.disabled = !isAmmo;
         ammoCapacity.disabled = !isAmmo;
@@ -53,9 +55,13 @@ function setupDynamicItemFields() {
             ammoQuantity.value = 1;
         }
 
+        // STORAGE
         storageSlots.disabled = (t !== "Storage");
         if (t !== "Storage") storageSlots.value = 1;
-    });
+    }
+
+    updateFields();                // Run immediately
+    type.addEventListener("change", updateFields);   // Run on change
 }
 
 /* ============================
