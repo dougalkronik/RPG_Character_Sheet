@@ -511,6 +511,29 @@ function saveEditedItem(index) {
         item.slots = Number(document.getElementById("editSlots").value);
     }
 
+    // ============================
+    // 🔧 NEW: Synchronize links
+    // ============================
+
+    // If editing a ranged weapon → update linked ammunition
+    if (item.type === "Weapon" && item.weaponCategory === "Ranged") {
+        const ammoName = item.ammoUsed;
+        const ammoItem = c.inventory.find(i => i.type === "Ammunition" && i.name === ammoName);
+        if (ammoItem) {
+            ammoItem.weaponUsedBy = item.name;
+        }
+    }
+
+    // If editing ammunition → update linked weapon
+    if (item.type === "Ammunition") {
+        const weaponName = item.weaponUsedBy;
+        const weaponItem = c.inventory.find(i => i.type === "Weapon" && i.name === weaponName);
+        if (weaponItem && weaponItem.weaponCategory === "Ranged") {
+            weaponItem.ammoUsed = item.name;
+        }
+    }
+
+    // Save
     localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     loadInventory();
 }
