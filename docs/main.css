@@ -1,0 +1,200 @@
+/* ===============================
+   GLOBAL PAGE LAYOUT
+   =============================== */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+}
+
+h1, h2, h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input, select, button {
+    margin-top: 5px;
+    padding: 6px;
+    font-size: 14px;
+}
+
+/* ===============================
+   NAVIGATION BAR
+   =============================== */
+
+nav {
+    background-color: #333;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   INVENTORY LIST
+   =============================== */
+
+#inventoryList li {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+}
+
+/* ===============================
+   EDIT PANEL
+   =============================== */
+
+.editPanel {
+    background-color: #fafafa;
+    border: 1px solid #aaa;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* ===============================
+   STATUS DROPDOWN COLOURS
+   =============================== */
+
+.status-undamaged {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.status-light {
+    background-color: #FFEB3B !important;
+}
+
+.status-medium {
+    background-color: #FF9800 !important;
+}
+
+.status-heavy {
+    background-color: #F44336 !important;
+    color: white !important;
+}
+
+.status-severe {
+    background-color: #000 !important;
+    color: white !important;
+}
+
+/* Row background colouring */
+.status-row-undamaged {
+    background-color: #c8e6c9;
+}
+
+.status-row-light {
+    background-color: #fff9c4;
+}
+
+.status-row-medium {
+    background-color: #ffe0b2;
+}
+
+.status-row-heavy {
+    background-color: #ffcdd2;
+}
+
+.status-row-severe {
+    background-color: #212121;
+    color: white;
+}
+
+/* ===============================
+   GEAR EQUIPPED PAGE LAYOUT
+   =============================== */
+
+.large-weapon-gray {
+    opacity: 0.4;
+    color: #555;
+}
+
+.gear-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.gear-table th, .gear-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.gear-section {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+/* ===============================
+   BACKPACK GRID
+   =============================== */
+
+.backpack-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 40px);
+    grid-template-rows: repeat(6, 40px);
+    gap: 4px;
+    margin-top: 20px;
+}
+
+.backpack-cell {
+    width: 40px;
+    height: 40px;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    text-align: center;
+    line-height: 40px;
+    font-size: 12px;
+}
+
+/* ===============================
+   STORAGE STRAPS
+   =============================== */
+
+.backpack-straps {
+    margin-top: 20px;
+}
+
+.backpack-strap {
+    padding: 10px;
+    background-color: #ddd;
+    border: 1px solid #aaa;
+    margin-bottom: 10px;
+}
