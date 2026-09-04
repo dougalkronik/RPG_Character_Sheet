@@ -21,41 +21,243 @@
 
 <h1>Gear Equipped</h1>
 
-<!-- BODY LOCATION STATUS -->
-<h2>Body Location Status</h2>
-<div id="bodyStatusContainer"></div>
+    <!-- ===============================
+     EQUIPPED WEAPONS
+     =============================== -->
 
-<!-- ARMOUR LOCATION STATUS -->
-<h2>Armour Location Status</h2>
-<div id="armourStatusContainer"></div>
+<div class="gear-section">
+    <h2>Equipped Weapons</h2>
 
-<!-- CLOTHING LIST -->
-<h2>Clothing</h2>
-<div id="clothingContainer"></div>
+    <table class="gear-table" id="equippedWeaponsTable">
+        <tr id="rightHandRow">
+            <th>Right Hand</th>
+            <td id="rightHandWeapon"></td>
+        </tr>
+        <tr id="leftHandRow">
+            <th>Left Hand</th>
+            <td id="leftHandWeapon"></td>
+        </tr>
+    </table>
+</div>
 
-<!-- PURSE -->
-<h2>Purse</h2>
-<p>
-    Money: <span id="purseAmount">0</span>
+<!-- ===============================
+     BODY LOCATION STATUS
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Body Location Status</h2>
+
+    <table class="gear-table" id="bodyStatusTable">
+        <tr data-location="Head">
+            <th>Head</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_head"></select>
+            </td>
+        </tr>
+        <tr data-location="Body">
+            <th>Body</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_body"></select>
+            </td>
+        </tr>
+        <tr data-location="Left Arm">
+            <th>Left Arm</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_leftarm"></select>
+            </td>
+        </tr>
+        <tr data-location="Right Arm">
+            <th>Right Arm</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_rightarm"></select>
+            </td>
+        </tr>
+        <tr data-location="Left Leg">
+            <th>Left Leg</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_leftleg"></select>
+            </td>
+        </tr>
+        <tr data-location="Right Leg">
+            <th>Right Leg</th>
+            <td>
+                <select class="statusDropdown" id="bodyStatus_rightleg"></select>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- ===============================
+     ARMOUR LOCATION STATUS
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Armour Status</h2>
+
+    <table class="gear-table" id="armourStatusTable">
+        <tr data-location="Head">
+            <th>Head</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_head"></select>
+            </td>
+            <td id="armourItem_head"></td>
+        </tr>
+        <tr data-location="Body">
+            <th>Body</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_body"></select>
+            </td>
+            <td id="armourItem_body"></td>
+        </tr>
+        <tr data-location="Left Arm">
+            <th>Left Arm</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_leftarm"></select>
+            </td>
+            <td id="armourItem_leftarm"></td>
+        </tr>
+        <tr data-location="Right Arm">
+            <th>Right Arm</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_rightarm"></select>
+            </td>
+            <td id="armourItem_rightarm"></td>
+        </tr>
+        <tr data-location="Left Leg">
+            <th>Left Leg</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_leftleg"></select>
+            </td>
+            <td id="armourItem_leftleg"></td>
+        </tr>
+        <tr data-location="Right Leg">
+            <th>Right Leg</th>
+            <td>
+                <select class="statusDropdown" id="armourStatus_rightleg"></select>
+            </td>
+            <td id="armourItem_rightleg"></td>
+        </tr>
+    </table>
+</div>
+
+<!-- ===============================
+     CLOTHING STATUS
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Clothing Status</h2>
+
+    <table class="gear-table" id="clothingStatusTable">
+        <tr data-location="Head">
+            <th>Head</th>
+            <td><select class="statusDropdown" id="clothingStatus_head"></select></td>
+            <td id="clothingItem_head"></td>
+        </tr>
+        <tr data-location="Body">
+            <th>Body</th>
+            <td><select class="statusDropdown" id="clothingStatus_body"></select></td>
+            <td id="clothingItem_body"></td>
+        </tr>
+        <tr data-location="Left Arm">
+            <th>Left Arm</th>
+            <td><select class="statusDropdown" id="clothingStatus_leftarm"></select></td>
+            <td id="clothingItem_leftarm"></td>
+        </tr>
+        <tr data-location="Right Arm">
+            <th>Right Arm</th>
+            <td><select class="statusDropdown" id="clothingStatus_rightarm"></select></td>
+            <td id="clothingItem_rightarm"></td>
+        </tr>
+        <tr data-location="Left Leg">
+            <th>Left Leg</th>
+            <td><select class="statusDropdown" id="clothingStatus_leftleg"></select></td>
+            <td id="clothingItem_leftleg"></td>
+        </tr>
+        <tr data-location="Right Leg">
+            <th>Right Leg</th>
+            <td><select class="statusDropdown" id="clothingStatus_rightleg"></select></td>
+            <td id="clothingItem_rightleg"></td>
+        </tr>
+        <tr data-location="Cloak">
+            <th>Cloak</th>
+            <td><select class="statusDropdown" id="clothingStatus_cloak"></select></td>
+            <td id="clothingItem_cloak"></td>
+        </tr>
+        <tr data-location="Gloves">
+            <th>Gloves</th>
+            <td><select class="statusDropdown" id="clothingStatus_gloves"></select></td>
+            <td id="clothingItem_gloves"></td>
+        </tr>
+        <tr data-location="Shoes">
+            <th>Shoes</th>
+            <td><select class="statusDropdown" id="clothingStatus_shoes"></select></td>
+            <td id="clothingItem_shoes"></td>
+        </tr>
+        <tr data-location="Belt">
+            <th>Belt</th>
+            <td><select class="statusDropdown" id="clothingStatus_belt"></select></td>
+            <td id="clothingItem_belt"></td>
+        </tr>
+    </table>
+</div>
+
+<!-- ===============================
+     PURSE (MONEY)
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Purse</h2>
+
+    <label>Money Amount</label>
+    <input type="number" id="purseAmount" min="0">
     <button id="purseMinus">-</button>
     <button id="pursePlus">+</button>
-</p>
+</div>
 
-<!-- BELT -->
-<h2>Belt</h2>
-<div id="beltContainer"></div>
+<!-- ===============================
+     BELT STORAGE
+     =============================== -->
 
-<!-- BACK HARNESS -->
-<h2>Back Harness</h2>
-<div id="backHarnessContainer"></div>
+<div class="gear-section">
+    <h2>Belt Storage</h2>
 
-<!-- QUIVER -->
-<h2>Quiver</h2>
-<div id="quiverContainer"></div>
+    <p id="beltInfo"></p>
 
-<!-- BACKPACK -->
-<h2>Backpack (6 × 8)</h2>
-<div id="backpackContainer"></div>
+    <ul id="beltWeapons"></ul>
+</div>
+
+<!-- ===============================
+     VEST STORAGE
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Vest Storage</h2>
+
+    <p id="vestInfo"></p>
+
+    <ul id="vestWeapons"></ul>
+
+    <h3>Ammunition</h3>
+    <ul id="vestAmmo"></ul>
+</div>
+
+<!-- ===============================
+     BACKPACK STORAGE
+     =============================== -->
+
+<div class="gear-section">
+    <h2>Backpack Storage</h2>
+
+    <div class="backpack-grid" id="backpackGrid"></div>
+
+    <h3>Straps</h3>
+    <div class="backpack-straps">
+        <div class="backpack-strap" id="backpackStrap_top">Top Strap</div>
+        <div class="backpack-strap" id="backpackStrap_left">Left Strap</div>
+        <div class="backpack-strap" id="backpackStrap_right">Right Strap</div>
+        <div class="backpack-strap" id="backpackStrap_bottom">Bottom Strap</div>
+    </div>
+</div>
 
 <script src="js/shared.js"></script>
 <script src="js/gear_equipped.js"></script>
