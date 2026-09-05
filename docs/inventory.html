@@ -9,13 +9,13 @@
 <body>
 
 <nav>
-    <a href="home.html">Home</a>
     <a href="profile.html">Profile</a>
     <a href="attributes.html">Attributes</a>
     <a href="inventory.html">Inventory</a>
+    <a href="gear_equipped.html">Gear</a>
     <a href="combat.html">Combat</a>
     <a href="followers.html">Followers</a>
-    <a href="gear_equipped.html">Gear Equipped</a>
+    <a href="home.html">Home</a>
     <a href="selection.html" id="closeCharacter">Close Character</a>
 </nav>
 
@@ -199,6 +199,22 @@
 
 <h2>Treasure — Total Assets: <span id="totalAssets">0</span></h2>
 
+    <!-- ===============================
+     MONEY (Unified with Purse)
+     =============================== -->
+
+<h3>Money</h3>
+
+<ul id="moneyList">
+    <li id="moneyRow">
+        <strong>Money</strong><br>
+        <label>Amount</label>
+        <input type="number" id="moneyAmount" min="0">
+        <button id="moneyMinus">-</button>
+        <button id="moneyPlus">+</button>
+    </li>
+</ul>
+
 <h3>Add Treasure</h3>
 
 <label>Treasure Name</label>
@@ -214,22 +230,6 @@
 
 <h3>Treasure List</h3>
 <ul id="treasureList"></ul>
-
-<!-- ===============================
-     MONEY (Unified with Purse)
-     =============================== -->
-
-<h3>Money</h3>
-
-<ul id="moneyList">
-    <li id="moneyRow">
-        <strong>Money</strong><br>
-        <label>Amount</label>
-        <input type="number" id="moneyAmount" min="0">
-        <button id="moneyMinus">-</button>
-        <button id="moneyPlus">+</button>
-    </li>
-</ul>
 
 <script src="js/shared.js"></script>
 <script src="js/inventory.js"></script>
