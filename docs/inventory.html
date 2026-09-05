@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>Inventory</title>
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/styles.css">
-
 </head>
 
 <body>
@@ -23,6 +21,10 @@
 
 <h1>Inventory</h1>
 
+<!-- ===============================
+     ADD ITEM
+     =============================== -->
+
 <h2>Possessions</h2>
 <h3>Add Item</h3>
 
@@ -35,7 +37,7 @@
     <option>Weapon</option>
     <option>Ammunition</option>
     <option>Consumable</option>
-    <option>Equipment</</option>
+    <option>Equipment</option>
     <option>Clothing</option>
     <option>Ring</option>
     <option>Earring</option>
@@ -139,6 +141,10 @@
 
 <button id="addItemBtn">Add Item</button>
 
+<!-- ===============================
+     INVENTORY LIST
+     =============================== -->
+
 <h3>
     Inventory List
     Type:
@@ -187,6 +193,10 @@
 
 <hr>
 
+<!-- ===============================
+     TREASURE SYSTEM
+     =============================== -->
+
 <h2>Treasure — Total Assets: <span id="totalAssets">0</span></h2>
 
 <h3>Add Treasure</h3>
@@ -204,6 +214,22 @@
 
 <h3>Treasure List</h3>
 <ul id="treasureList"></ul>
+
+<!-- ===============================
+     MONEY (Unified with Purse)
+     =============================== -->
+
+<h3>Money</h3>
+
+<ul id="moneyList">
+    <li id="moneyRow">
+        <strong>Money</strong><br>
+        <label>Amount</label>
+        <input type="number" id="moneyAmount" min="0">
+        <button id="moneyMinus">-</button>
+        <button id="moneyPlus">+</button>
+    </li>
+</ul>
 
 <script src="js/shared.js"></script>
 <script src="js/inventory.js"></script>
