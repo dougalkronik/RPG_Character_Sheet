@@ -589,22 +589,29 @@ function renderTreasureList(treasure) {
 
     let totalAssets = 0;
 
-    treasure.forEach((t, index) => {
-        const total = t.value * t.quantity;
-        totalAssets += total;
+treasure.forEach((t, index) => {
 
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <strong>${t.name}</strong> — Value: ${t.value}, Qty: ${t.quantity}, Total: ${total}
-            <button class="deleteTreasureBtn">Delete</button>
-        `;
+    // Skip Money entirely — it will NOT appear in the treasure list
+    if (t.name === "Money") return;
 
-        li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
-            deleteTreasureItem(index);
-        });
+    const total = t.value * t.quantity;
+    totalAssets += total;
 
-        list.appendChild(li);
+    const li = document.createElement("li");
+    li.innerHTML = `
+        <strong>${t.name}</strong><br>
+        Value: ${t.value}<br>
+        Quantity: ${t.quantity}<br>
+        Total: ${total}<br>
+        <button class="deleteTreasureBtn">Delete</button>
+    `;
+
+    li.querySelector(".deleteTreasureBtn").addEventListener("click", () => {
+        deleteTreasureItem(index);
     });
+
+    list.appendChild(li);
+});
 
     document.getElementById("totalAssets").textContent = totalAssets;
 }
