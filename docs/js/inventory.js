@@ -637,3 +637,56 @@ function deleteTreasureItem(index) {
     localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
     loadTreasure();
 }
+
+/* ============================================
+   MONEY (SYNC WITH PURSE SYSTEM)
+   ============================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+    setupMoneyControls();
+});
+
+function setupMoneyControls() {
+    const c = getCharacterObject();
+    if (!c.treasure) return;
+
+    const money = c.treasure.find(t => t.name === "Money");
+    if (!money) return;
+
+    const box = document.getElementById("moneyAmount");
+    const plus = document.getElementById("moneyPlus");
+    const minus = document.getElementById("moneyMinus");
+
+    if (!box || !plus || !minus) return;
+
+    // Load current value
+    box.value = money.quantity;
+
+    // Change box manually
+    box.addEventListener("change", () => {
+        updateMoney(box.value);
+    });
+
+    // + button
+    plus.addEventListener("click", () => {
+        box.value = Number(box.value) + 1;
+        updateMoney(box.value);
+    });
+
+    // - button
+    minus.addEventListener("click", () => {
+        box.value = Math.max(0, Number(box.value) - 1);
+        updateMoney(box.value);
+    });
+}
+
+function updateMoney(amount) {
+    const c = getCharacterObject();
+    const money = c.treasure.find(t => t.name === "Money");
+
+    money.quantity = Number(amount);
+    localStorage.setItem(getCurrentCharacterKey(), JSON.stringify(c));
+
+    // Refresh treasure list display
+    loadTreasure();
+}
