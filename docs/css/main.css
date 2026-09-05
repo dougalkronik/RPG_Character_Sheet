@@ -29,7 +29,7 @@ input, select, button {
 }
 
 /* ===============================
-   NAVIGATION BAR
+   NAV BAR SPACING + ALIGNMENT
    =============================== */
 
 nav {
@@ -40,9 +40,12 @@ nav {
 
 nav a {
     color: white;
-    margin-right: 15px;
     text-decoration: none;
     font-weight: bold;
+
+    /* NEW: spacing + layout improvements */
+    padding: 6px 12px;
+    display: inline-block;
 }
 
 nav a:hover {
