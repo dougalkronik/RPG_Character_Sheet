@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
         createBtn.addEventListener("click", createCharacter);
     }
 
+    // Import button
+    const importBtn = document.getElementById("importCharacterBtn");
+    if (importBtn) {
+        importBtn.addEventListener("click", () => {
+            document.getElementById("importFileInput").click();
+        });
+    }
+
+    // File input for import
+    const importInput = document.getElementById("importFileInput");
+    if (importInput) {
+        importInput.addEventListener("change", importCharacterFile);
+    }
+
     // Close Character button in nav bar
     const closeBtn = document.getElementById("closeCharacter");
     if (closeBtn) {
@@ -18,6 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+/* ============================================
+   LOAD CHARACTER LIST
+   ============================================ */
+
 function loadCharacterList() {
     const listElement = document.getElementById("characterList");
     listElement.innerHTML = "";
@@ -25,20 +43,19 @@ function loadCharacterList() {
     const characters = JSON.parse(localStorage.getItem("characterList")) || [];
 
     characters.forEach(name => {
+        const key = "character_" + name;
         const li = document.createElement("li");
 
         li.innerHTML = `
             ${name}
             <button class="selectBtn">Select</button>
             <button class="deleteBtn">Delete</button>
+            <button class="exportBtn">Export</button>
         `;
 
         // SELECT CHARACTER
         li.querySelector(".selectBtn").addEventListener("click", () => {
-            const key = "character_" + name;
             localStorage.setItem("currentCharacter", key);
-
-            // GitHub Pages supports relative navigation
             window.location.href = "profile.html";
         });
 
@@ -47,9 +64,19 @@ function loadCharacterList() {
             deleteCharacter(name);
         });
 
+        // EXPORT CHARACTER
+        li.querySelector(".exportBtn").addEventListener("click", () => {
+            exportCharacter(key);
+        });
+
         listElement.appendChild(li);
     });
 }
+
+
+/* ============================================
+   CREATE CHARACTER
+   ============================================ */
 
 function createCharacter() {
     const nameInput = document.getElementById("newCharacterName");
@@ -76,12 +103,21 @@ function createCharacter() {
     const key = "character_" + name;
     localStorage.setItem(key, JSON.stringify({
         name: name,
-        created: Date.now()
+        created: Date.now(),
+        inventory: [],
+        treasure: [
+            { name: "Money", value: 1, quantity: 0 }
+        ]
     }));
 
     nameInput.value = "";
     loadCharacterList();
 }
+
+
+/* ============================================
+   DELETE CHARACTER
+   ============================================ */
 
 function deleteCharacter(name) {
     const characters = JSON.parse(localStorage.getItem("characterList")) || [];
@@ -100,5 +136,96 @@ function deleteCharacter(name) {
     localStorage.removeItem(key + "_notes");
     localStorage.removeItem(key + "_spells");
 
+    // If this was the active character, clear it
+    if (localStorage.getItem("currentCharacter") === key) {
+        localStorage.removeItem("currentCharacter");
+    }
+
     loadCharacterList();
+}
+
+
+/* ============================================
+   EXPORT CHARACTER
+   ============================================ */
+
+function exportCharacter(key) {
+    const character = JSON.parse(localStorage.getItem(key));
+
+    if (!character) {
+        alert("Character not found.");
+        return;
+    }
+
+    const jsonData = JSON.stringify(character, null, 4);
+
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = key + ".json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    alert("Character exported as " + key + ".json");
+}
+
+
+/* ============================================
+   IMPORT CHARACTER (with overwrite warning)
+   ============================================ */
+
+function importCharacterFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const data = JSON.parse(e.target.result);
+
+            if (!data.name) {
+                alert("Invalid character file: missing name.");
+                return;
+            }
+
+            const characters = JSON.parse(localStorage.getItem("characterList")) || [];
+            const key = "character_" + data.name;
+
+            // Character already exists → ask user if they want to overwrite
+            if (characters.includes(data.name)) {
+                const overwrite = confirm(
+                    `A character named "${data.name}" already exists.\n\n` +
+                    `Do you want to OVERWRITE the existing character with the imported one?`
+                );
+
+                if (!overwrite) {
+                    alert("Import cancelled.");
+                    return;
+                }
+
+                // Overwrite existing character
+                localStorage.setItem(key, JSON.stringify(data));
+                alert(`Character "${data.name}" overwritten successfully.`);
+                loadCharacterList();
+                return;
+            }
+
+            // Character does not exist → normal import
+            localStorage.setItem(key, JSON.stringify(data));
+            characters.push(data.name);
+            localStorage.setItem("characterList", JSON.stringify(characters));
+
+            alert("Character imported: " + data.name);
+            loadCharacterList();
+
+        } catch (err) {
+            alert("Invalid JSON file.");
+        }
+    };
+
+    reader.readAsText(file);
 }
