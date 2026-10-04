@@ -1,0 +1,53 @@
+
+/* nav_bar.css */
+
+/* Sticky nav bar */
+#globalNav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background-color: #222;
+    padding: 10px;
+    display: flex;
+    gap: 14px;
+    border-bottom: 2px solid #444;
+}
+
+/* Base link styling */
+#globalNav a {
+    color: #eee;
+    text-decoration: none;
+    padding: 6px 10px;
+    font-size: 16px;
+
+    transition: background-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.15s ease;
+}
+
+/* Hover animation */
+#globalNav a:hover {
+    background-color: #444;
+    color: #fff;
+    transform: translateY(-2px);
+    border-radius: 4px;
+}
+
+/* Active page highlight */
+#globalNav a.active {
+    background-color: #555;
+    color: #fff;
+    border-radius: 4px;
+}
+
+/* Close Character styling */
+#globalNav a#closeCharacter {
+    margin-left: auto;
+    color: #ff6666;
+}
+
+#globalNav a#closeCharacter:hover {
+    background-color: #663333;
+}
+
