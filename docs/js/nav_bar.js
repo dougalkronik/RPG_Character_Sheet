@@ -3,7 +3,7 @@
 
 async function injectNavBar() {
     try {
-        const response = await fetch("nav_bar.html");
+        const response = await fetch("../nav_bar.html");
         const navHTML = await response.text();
 
         // Create wrapper
