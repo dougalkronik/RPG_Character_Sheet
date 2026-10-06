@@ -48,14 +48,25 @@ function loadEnemySection() {
     const addEnemyBtn = document.getElementById("addEnemyBtn");
     const enemyList = document.getElementById("enemyList");
 
-    // Safety: if the combat page ever changes, avoid crashes
     if (!enemyNameInput || !addEnemyBtn || !enemyList) return;
 
+    const c = getCharacterObject();
+    if (!c) return;
+
+    // Load saved enemies for this character
+    const savedEnemies = c.enemies || [];
+    savedEnemies.forEach(enemy => {
+        addEnemy(enemy.name, enemy.range, enemyList);
+    });
+
+    // Add new enemy
     addEnemyBtn.addEventListener("click", () => {
         const name = enemyNameInput.value.trim();
         if (name === "") return;
 
-        addEnemy(name, enemyList);
+        addEnemy(name, 0, enemyList);
+        saveEnemies(enemyList);
+
         enemyNameInput.value = "";
     });
 }
@@ -317,7 +328,7 @@ function loadWeaponSection() {
    ENEMY SECTION
 ============================ */
 
-function addEnemy(name, enemyList) {
+function addEnemy(name, range, enemyList) {
 
     const container = document.createElement("div");
     container.className = "enemyRow";
@@ -330,13 +341,12 @@ function addEnemy(name, enemyList) {
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.className = "deleteEnemyBtn";
-    deleteBtn.addEventListener("click", () => container.remove());
 
     const slider = document.createElement("input");
     slider.type = "range";
     slider.min = 0;
     slider.max = 4;
-    slider.value = 0;
+    slider.value = range;
     slider.className = "distanceSlider";
 
     const labels = ["Close", "Near", "Short Range", "Medium Range", "Long Range"];
@@ -345,8 +355,15 @@ function addEnemy(name, enemyList) {
     labelDisplay.className = "rangeLabel";
     labelDisplay.textContent = labels[slider.value];
 
+    nameInput.addEventListener("input", () => saveEnemies(enemyList));
     slider.addEventListener("input", () => {
         labelDisplay.textContent = labels[slider.value];
+        saveEnemies(enemyList);
+    });
+
+    deleteBtn.addEventListener("click", () => {
+        container.remove();
+        saveEnemies(enemyList);
     });
 
     container.appendChild(nameInput);
@@ -355,6 +372,21 @@ function addEnemy(name, enemyList) {
     container.appendChild(labelDisplay);
 
     enemyList.appendChild(container);
+}
+
+function saveEnemies(enemyList) {
+
+    const enemies = [];
+
+    enemyList.querySelectorAll(".enemyRow").forEach(row => {
+        const name = row.querySelector(".enemyName").value;
+        const range = parseInt(row.querySelector(".distanceSlider").value, 10);
+
+        enemies.push({ name, range });
+    });
+
+    // Save into the active character
+    saveCharacterField("enemies", enemies);
 }
 
 /* ============================
