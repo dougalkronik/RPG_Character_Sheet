@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loadSkillSection();
     loadArmourSection();
     loadBodyStatusSection();
+    
+    loadEnemySection();
 });
 
 /* ============================
@@ -40,17 +42,23 @@ const bodyLocations = [
 
 //!-- ENEMY ADDITION AND LIST SECTION
 
-const enemyNameInput = document.getElementById("enemyNameInput");
-const addEnemyBtn = document.getElementById("addEnemyBtn");
-const enemyList = document.getElementById("enemyList");
+function loadEnemySection() {
+
+    const enemyNameInput = document.getElementById("enemyNameInput");
+    const addEnemyBtn = document.getElementById("addEnemyBtn");
+    const enemyList = document.getElementById("enemyList");
+
+    // Safety: if the combat page ever changes, avoid crashes
+    if (!enemyNameInput || !addEnemyBtn || !enemyList) return;
 
     addEnemyBtn.addEventListener("click", () => {
         const name = enemyNameInput.value.trim();
         if (name === "") return;
 
-        addEnemy(name);
+        addEnemy(name, enemyList);
         enemyNameInput.value = "";
     });
+}
 
 //!-- END OF ENEMY LIST SECTION
         
@@ -309,25 +317,21 @@ function loadWeaponSection() {
    ENEMY SECTION
 ============================ */
 
-function addEnemy(name) {
+function addEnemy(name, enemyList) {
+
     const container = document.createElement("div");
     container.className = "enemyRow";
 
-    // Editable name field
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.value = name;
     nameInput.className = "enemyName";
 
-    // Delete button
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.className = "deleteEnemyBtn";
-    deleteBtn.addEventListener("click", () => {
-        container.remove();
-    });
+    deleteBtn.addEventListener("click", () => container.remove());
 
-    // Range slider
     const slider = document.createElement("input");
     slider.type = "range";
     slider.min = 0;
@@ -335,7 +339,6 @@ function addEnemy(name) {
     slider.value = 0;
     slider.className = "distanceSlider";
 
-    // Range labels
     const labels = ["Close", "Near", "Short Range", "Medium Range", "Long Range"];
 
     const labelDisplay = document.createElement("span");
@@ -346,7 +349,6 @@ function addEnemy(name) {
         labelDisplay.textContent = labels[slider.value];
     });
 
-    // Assemble row
     container.appendChild(nameInput);
     container.appendChild(deleteBtn);
     container.appendChild(slider);
