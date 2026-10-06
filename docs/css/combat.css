@@ -1,0 +1,48 @@
+
+/* combat.css */
+
+#enemyInputSection {
+    margin-bottom: 20px;
+}
+
+#enemyNameInput {
+    padding: 6px;
+    font-size: 16px;
+    width: 200px;
+}
+
+#addEnemyBtn {
+    padding: 6px 12px;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.enemyRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 6px;
+}
+
+.enemyName {
+    font-size: 16px;
+    padding: 4px;
+    width: 180px;
+}
+
+.deleteEnemyBtn {
+    padding: 4px 10px;
+    font-size: 14px;
+}
+
+.distanceSlider {
+    width: 200px;
+}
+
+.rangeLabel {
+    font-size: 14px;
+    font-weight: bold;
+}
