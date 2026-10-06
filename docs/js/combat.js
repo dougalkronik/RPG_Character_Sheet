@@ -50,6 +50,7 @@ const enemyList = document.getElementById("enemyList");
 
         addEnemy(name);
         enemyNameInput.value = "";
+    });
 
 //!-- END OF ENEMY LIST SECTION
         
@@ -568,3 +569,4 @@ function loadBodyStatusSection() {
         container.appendChild(row);
     });
 }
+        
