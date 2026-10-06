@@ -38,6 +38,21 @@ const bodyLocations = [
     "Right Leg"
 ];
 
+//!-- ENEMY ADDITION AND LIST SECTION
+
+const enemyNameInput = document.getElementById("enemyNameInput");
+const addEnemyBtn = document.getElementById("addEnemyBtn");
+const enemyList = document.getElementById("enemyList");
+
+    addEnemyBtn.addEventListener("click", () => {
+        const name = enemyNameInput.value.trim();
+        if (name === "") return;
+
+        addEnemy(name);
+        enemyNameInput.value = "";
+
+//!-- END OF ENEMY LIST SECTION
+        
 const statusOptions = [
     { label: "Undamaged", color: "green" },
     { label: "Light", color: "yellow" },
@@ -287,6 +302,56 @@ function loadWeaponSection() {
 
         container.appendChild(row);
     });
+}
+
+/* ============================
+   ENEMY SECTION
+============================ */
+
+function addEnemy(name) {
+    const container = document.createElement("div");
+    container.className = "enemyRow";
+
+    // Editable name field
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = name;
+    nameInput.className = "enemyName";
+
+    // Delete button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.className = "deleteEnemyBtn";
+    deleteBtn.addEventListener("click", () => {
+        container.remove();
+    });
+
+    // Range slider
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = 0;
+    slider.max = 4;
+    slider.value = 0;
+    slider.className = "distanceSlider";
+
+    // Range labels
+    const labels = ["Close", "Near", "Short Range", "Medium Range", "Long Range"];
+
+    const labelDisplay = document.createElement("span");
+    labelDisplay.className = "rangeLabel";
+    labelDisplay.textContent = labels[slider.value];
+
+    slider.addEventListener("input", () => {
+        labelDisplay.textContent = labels[slider.value];
+    });
+
+    // Assemble row
+    container.appendChild(nameInput);
+    container.appendChild(deleteBtn);
+    container.appendChild(slider);
+    container.appendChild(labelDisplay);
+
+    enemyList.appendChild(container);
 }
 
 /* ============================
